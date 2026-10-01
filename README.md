@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/network-none-2E7D32?style=flat-square" alt="No network access">
   <img src="https://img.shields.io/badge/languages-English%20%C2%B7%20Espa%C3%B1ol-FFD966?style=flat-square" alt="English and Spanish">
   <img src="https://img.shields.io/badge/Figma%20Community-in%20review-A39D90?style=flat-square" alt="Figma Community: in review">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-3A3834?style=flat-square" alt="MIT license"></a>
 </p>
 
 <p align="center"><b>English</b> · <a href="README.es.md">Español</a></p>
@@ -103,3 +104,7 @@ Version 0.4. Known gaps:
 
 - Copies of a jar aren't protected yet, so a duplicate could be used to open ideas that aren't yours.
 - The Community listing is in review. This README will link to it once it's live.
+
+## License
+
+[MIT](LICENSE) © 2026 Jorge Molina

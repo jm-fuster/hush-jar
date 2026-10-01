@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/red-ninguna-2E7D32?style=flat-square" alt="Sin acceso a internet">
   <img src="https://img.shields.io/badge/idiomas-Espa%C3%B1ol%20%C2%B7%20English-FFD966?style=flat-square" alt="Español e inglés">
   <img src="https://img.shields.io/badge/Comunidad%20de%20Figma-en%20revisi%C3%B3n-A39D90?style=flat-square" alt="Comunidad de Figma: en revisión">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/licencia-MIT-3A3834?style=flat-square" alt="Licencia MIT"></a>
 </p>
 
 <p align="center"><a href="README.md">English</a> · <b>Español</b></p>
@@ -103,3 +104,7 @@ Versión 0.4. Lo que falta:
 
 - Las copias de un tarro todavía no están protegidas, así que un duplicado podría servir para abrir ideas ajenas.
 - La ficha de la Comunidad está en revisión. Este README la enlazará cuando esté publicada.
+
+## Licencia
+
+[MIT](LICENSE) © 2026 Jorge Molina. Puedes usar, copiar y adaptar el código, también con fines comerciales, siempre que mantengas el aviso de licencia.
