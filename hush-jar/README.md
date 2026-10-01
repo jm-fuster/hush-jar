@@ -40,7 +40,7 @@ Mientras el widget está en desarrollo, solo lo puede usar quien lo ha importado
 
 ## Publicar
 
-Todo lo que pide Figma está en `publicar/`: `ficha.md` con los pasos y los textos para copiar (nombre, frase corta, descripción en inglés y en español, y las respuestas de seguridad de datos), `icono.png` (128 × 128), la instantánea del widget con fondo transparente (`instantanea-en.png` e `instantanea-es.png`) y las portadas `portada-en.png` y `portada-es.png` (1920 × 1080).
+Todo lo que pide Figma está en `publicar/`: `ficha.md` con los pasos y los textos para copiar (nombre, frase corta, descripción en inglés y en español, y las respuestas de seguridad de datos), `icono.png` (128 × 128), la instantánea del widget con fondo transparente (`instantanea-en.png` e `instantanea-es.png`) las portadas `portada-en.png` y `portada-es.png` y los tres pasos de «Cómo funciona» en `pasos-en.png` y `pasos-es.png` (1920 × 1080), que también usa el README principal.
 
 Las imágenes salen del mismo dibujo del tarro y de los mismos textos del widget. Si cambia algo, se regeneran con `npm run imagenes`.
 

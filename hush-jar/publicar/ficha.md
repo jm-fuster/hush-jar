@@ -17,7 +17,7 @@ Todo lo que pide Figma, listo para copiar y pegar. La Comunidad es internacional
    - Instantánea del widget: `instantanea-en.png` (el widget solo, con fondo transparente). Si publicas en español, `instantanea-es.png`.
    - Icono: `icono.png` (128 × 128).
    - Miniatura: `portada-en.png` (1920 × 1080).
-   - Carrusel (opcional): `portada-es.png`.
+   - Carrusel (opcional): `pasos-en.png` (cómo funciona, en tres pasos) y `portada-es.png`.
 6. **Data security** (opcional, pero da confianza): respuestas más abajo.
 7. **Add the final details**:
    - Publicar como tú.

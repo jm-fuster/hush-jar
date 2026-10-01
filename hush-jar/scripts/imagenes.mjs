@@ -3,6 +3,7 @@
 //   publicar/instantanea-en.png   el widget solo, con fondo transparente (y -es, en español)
 //   publicar/portada-en.png       1920 × 1080 (la miniatura de la ficha en la Comunidad)
 //   publicar/portada-es.png       1920 × 1080 (la misma, en español, por si la quieres en el carrusel)
+//   publicar/pasos-en.png         1920 × 1080 (cómo funciona, en tres pasos: README y carrusel; y -es)
 // Usa el mismo dibujo del tarro y los mismos textos que el widget, y las fotografía con Edge sin
 // ventana. Las páginas HTML intermedias se quedan en publicar/fuentes/ por si quieres retocarlas.
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
@@ -42,6 +43,14 @@ const COPY = {
     typed: 'Our Monday meetings run too long, and nobody dares to say it.',
     stickies: ['Fewer status meetings', 'Pair up on tricky bugs', 'Demo something every Friday'],
     leader: 'Alex',
+    howPill: 'How it works',
+    howTitle: 'Three steps, zero names.',
+    how: [
+      ['Write in private', 'Everyone opens their own window. Each idea is saved after a random delay, so timing gives no one away.'],
+      ['The jar fills up', 'The board only shows how many ideas and people there are. Nobody can read a thing.'],
+      ['Open the jar', 'Ideas land shuffled, as regular FigJam stickies with no names. Ready to group and vote on.'],
+    ],
+    retro: { bien: ['Demo day went great', 'Faster code reviews'], mejorar: ['Monday meetings run long', 'Unclear priorities'], probar: ['Pair up on tricky bugs', 'Async daily updates'] },
   },
   es: {
     pill: 'Widget para FigJam',
@@ -50,6 +59,14 @@ const COPY = {
     typed: 'Las reuniones de los lunes se alargan demasiado y nadie se atreve a decirlo.',
     stickies: ['Menos reuniones de seguimiento', 'Programar en pareja los bugs difíciles', 'Enseñar algo cada viernes'],
     leader: 'Alex',
+    howPill: 'Cómo funciona',
+    howTitle: 'Tres pasos, ningún nombre.',
+    how: [
+      ['Escribe en privado', 'Cada persona abre su propia ventana. Las ideas se guardan con un retraso al azar, para que el momento no delate a nadie.'],
+      ['El tarro se llena', 'En el tablero solo se ve cuántas ideas y cuántas personas hay. Nadie puede leer nada.'],
+      ['Abre el tarro', 'Las ideas salen mezcladas, como notas normales de FigJam y sin nombre. Listas para agrupar y votar.'],
+    ],
+    retro: { bien: ['La demo salió genial', 'Revisiones más rápidas'], mejorar: ['Los lunes, reuniones eternas', 'Prioridades poco claras'], probar: ['Bugs difíciles en pareja', 'Dailies por escrito'] },
   },
 }
 
@@ -86,6 +103,36 @@ function card(lang, extraClass = '') {
 </div>`
 }
 
+// ---------- réplica de la ventanita privada (ui.html), con una idea a medio escribir ----------
+const WINDOW_CSS = `
+.window{width:380px;background:#fff;border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,.20),0 0 0 1px rgba(0,0,0,.07);overflow:hidden}
+.bar{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 16px;border-bottom:1px solid #E9E9E9;font-size:11px;font-weight:600}
+.bar span:last-child{font-size:16px;font-weight:400;color:#6B6B66}
+.wbody{padding:18px 18px 16px;font-size:13px;line-height:1.5}
+.eyebrow{display:inline-flex;margin:0 0 10px;padding:3px 9px;border-radius:999px;background:#F6F6F2;color:#6B6B66;font-size:11px;font-weight:600}
+.wq{margin:0 0 12px;font-size:16px;line-height:1.35;font-weight:700}
+.area{height:100px;padding:10px 12px;border:1px solid #1D1D1F;border-radius:10px;background:#F6F6F2;font-size:14px;line-height:1.45}
+.area i{display:inline-block;width:1.5px;height:17px;margin-left:1px;background:#1D1D1F;vertical-align:-3px}
+.row{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.wcount{color:#6B6B66;font-size:12px}
+.seal{padding:8px 14px;border-radius:8px;background:#1D1D1F;color:#fff;font-weight:600}
+.status{margin:10px 0 0;font-size:13px;color:#1D1D1F}`
+
+function privateWindow(lang) {
+  const t = strings(lang)
+  const c = COPY[lang]
+  return `<div class="window">
+  <div class="bar"><span>${esc(t.panelTitle)}</span><span>×</span></div>
+  <div class="wbody">
+    <p class="eyebrow">${esc(t.panel.eyebrow)}</p>
+    <p class="wq">${esc(t.suggestions[0])}</p>
+    <div class="area">${esc(c.typed)}<i></i></div>
+    <div class="row"><span class="wcount">${c.typed.length}/280</span><span class="seal">${esc(t.panel.seal)}</span></div>
+    <p class="status">${esc(t.panel.saving + t.panel.delay.replace('{s}', '3'))}</p>
+  </div>
+</div>`
+}
+
 // ---------- instantánea: el widget solo, con fondo transparente ----------
 const SNAP_PAD = 40 // aire alrededor para que no se corte la sombra
 
@@ -101,7 +148,6 @@ function snapshot(lang) {
 function cover(lang) {
   const t = strings(lang)
   const c = COPY[lang]
-  const question = t.suggestions[0]
   const formats = [t.formats.single, t.formats.retro, t.formats.ssc].map(esc).join(' · ')
   const languages = [...LANGS].sort((a, b) => (a.id === lang ? -1 : b.id === lang ? 1 : 0)).map((l) => l.label).join(' · ')
   return `<!doctype html><html lang="${lang}"><meta charset="utf-8">${FONT}
@@ -120,19 +166,8 @@ h1{margin:28px 0 18px;font-size:128px;line-height:1;font-weight:800;letter-spaci
 .meta{margin:52px 0 0;font-size:22px;line-height:1.6;color:#6B6B66}
 ${CARD_CSS}
 .on-cover{position:absolute;left:1160px;top:140px;transform:scale(1.15);transform-origin:top left}
-/* réplica de la ventanita privada */
-.window{position:absolute;left:790px;top:560px;width:380px;background:#fff;border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,.20),0 0 0 1px rgba(0,0,0,.07);overflow:hidden;transform:scale(1.1);transform-origin:top left}
-.bar{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 16px;border-bottom:1px solid #E9E9E9;font-size:11px;font-weight:600}
-.bar span:last-child{font-size:16px;font-weight:400;color:#6B6B66}
-.wbody{padding:18px 18px 16px;font-size:13px;line-height:1.5}
-.eyebrow{display:inline-flex;margin:0 0 10px;padding:3px 9px;border-radius:999px;background:#F6F6F2;color:#6B6B66;font-size:11px;font-weight:600}
-.wq{margin:0 0 12px;font-size:16px;line-height:1.35;font-weight:700}
-.area{height:100px;padding:10px 12px;border:1px solid #1D1D1F;border-radius:10px;background:#F6F6F2;font-size:14px;line-height:1.45}
-.area i{display:inline-block;width:1.5px;height:17px;margin-left:1px;background:#1D1D1F;vertical-align:-3px}
-.row{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
-.wcount{color:#6B6B66;font-size:12px}
-.seal{padding:8px 14px;border-radius:8px;background:#1D1D1F;color:#fff;font-weight:600}
-.status{margin:10px 0 0;font-size:13px;color:#1D1D1F}
+${WINDOW_CSS}
+.window{position:absolute;left:790px;top:560px;transform:scale(1.1);transform-origin:top left}
 /* notas anónimas que salen del tarro */
 .sticky{position:absolute;width:190px;height:190px;padding:20px;background:#FFE8A3;font-size:21px;line-height:1.3;font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,.08),0 12px 28px rgba(0,0,0,.12)}
 </style>
@@ -149,16 +184,59 @@ ${CARD_CSS}
 <div class="sticky" style="left:1702px;top:395px;transform:rotate(-4deg)">${esc(c.stickies[1])}</div>
 <div class="sticky" style="left:1692px;top:660px;transform:rotate(3deg)">${esc(c.stickies[2])}</div>
 ${card(lang, 'on-cover')}
-<div class="window">
-  <div class="bar"><span>${esc(t.panelTitle)}</span><span>×</span></div>
-  <div class="wbody">
-    <p class="eyebrow">${esc(t.panel.eyebrow)}</p>
-    <p class="wq">${esc(question)}</p>
-    <div class="area">${esc(c.typed)}<i></i></div>
-    <div class="row"><span class="wcount">${c.typed.length}/280</span><span class="seal">${esc(t.panel.seal)}</span></div>
-    <p class="status">${esc(t.panel.saving + t.panel.delay.replace('{s}', '3'))}</p>
-  </div>
-</div>
+${privateWindow(lang)}
+</body></html>`
+}
+
+// ---------- cómo funciona: los tres pasos (para el README y el carrusel de la ficha) ----------
+function steps(lang) {
+  const t = strings(lang)
+  const c = COPY[lang]
+  const columns = [['bien', '#AFF4C6'], ['mejorar', '#FFC7C2'], ['probar', '#BDE3FF']] // los de widget-src/code.tsx
+  const sections = columns.map(([id, hex], i) => `<div class="section" style="--c:${hex}">
+    <span class="stag">${esc(t.columns[id])}</span>
+    ${c.retro[id].map((s, j) => `<div class="note" style="transform:rotate(${[-2, 1.5, -1, 2, -1.5, 1][i * 2 + j]}deg)">${esc(s)}</div>`).join('')}
+  </div>`).join('')
+  const visuals = [
+    `<div class="w-wrap">${privateWindow(lang)}</div>`,
+    `<div class="jar-wrap">${jarSvg(14, false)}<div class="count">${esc(`${t.ideas(14)} · ${t.people(6)}`)}</div><div class="hint">${esc(t.nobodyReads)}</div></div>`,
+    `<div class="sections">${sections}</div>`,
+  ]
+  return `<!doctype html><html lang="${lang}"><meta charset="utf-8">${FONT}
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden}
+body{position:relative;font-family:Inter,system-ui,sans-serif;color:#1D1D1F;background:#F5F1E8}
+.dots{position:absolute;inset:0;background-image:radial-gradient(#D9D2C3 1.6px,transparent 1.6px);background-size:28px 28px;opacity:.7}
+header{position:absolute;left:110px;top:84px;display:flex;flex-direction:column;align-items:flex-start;gap:22px}
+.pill{padding:10px 20px;border-radius:999px;background:#1D1D1F;color:#fff;font-size:22px;font-weight:600;letter-spacing:.2px}
+h2{margin:0;font-size:72px;line-height:1;font-weight:800;letter-spacing:-2px}
+.cards{position:absolute;left:110px;right:110px;top:300px;bottom:84px;display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+.step{display:flex;flex-direction:column;background:#fff;border:2px solid #E6E2D8;border-radius:28px;box-shadow:0 6px 20px rgba(0,0,0,.06);overflow:hidden}
+.visual{height:470px;flex:none;display:flex;align-items:center;justify-content:center;background:#FBF9F4;border-bottom:2px solid #EFEBE2}
+.caption{padding:30px 34px;display:flex;gap:20px;align-items:flex-start}
+.caption b{flex:none;width:48px;height:48px;border-radius:50%;background:#FFD966;border:2px solid #1D1D1F;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700}
+.caption h3{margin:4px 0 10px;font-size:32px;line-height:1.1;font-weight:700;letter-spacing:-.5px}
+.caption p{margin:0;font-size:22px;line-height:1.4;color:#55534E}
+${WINDOW_CSS}
+.w-wrap{width:380px;transform:scale(1.08);transform-origin:center}
+.window{box-shadow:0 12px 34px rgba(0,0,0,.14),0 0 0 1px rgba(0,0,0,.07)}
+.jar-wrap{display:flex;flex-direction:column;align-items:center}
+.jar-wrap svg{display:block;width:221px;height:260px}
+.count{margin-top:18px;font-size:24px;font-weight:600}
+.hint{margin-top:6px;font-size:17px;color:#6B6B66}
+.sections{display:flex;gap:14px}
+.section{position:relative;width:152px;padding:44px 12px 14px;border-radius:12px;background:color-mix(in srgb,var(--c) 28%,#fff);border:1.5px solid color-mix(in srgb,var(--c) 70%,#8C8676);display:flex;flex-direction:column;gap:12px}
+.stag{position:absolute;left:10px;top:10px;padding:3px 9px;border-radius:6px;background:var(--c);font-size:13px;font-weight:600;white-space:nowrap}
+.note{height:132px;padding:13px;background:var(--c);font-size:16px;line-height:1.3;font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,.08),0 6px 14px rgba(0,0,0,.10)}
+</style>
+<body>
+<div class="dots"></div>
+<header><span class="pill">${esc(c.howPill)}</span><h2>${esc(c.howTitle)}</h2></header>
+<section class="cards">${c.how.map(([title, text], i) => `<article class="step">
+  <div class="visual">${visuals[i]}</div>
+  <div class="caption"><b>${i + 1}</b><div><h3>${esc(title)}</h3><p>${esc(text)}</p></div></div>
+</article>`).join('')}</section>
 </body></html>`
 }
 
@@ -203,4 +281,5 @@ for (const lang of ['en', 'es']) {
   const height = measure(`instantanea-${lang}`, html)
   shoot(`instantanea-${lang}`, html, 440 + SNAP_PAD * 2, height + SNAP_PAD * 2, { scale: 2, transparent: true })
   shoot(`portada-${lang}`, cover(lang), 1920, 1080)
+  shoot(`pasos-${lang}`, steps(lang), 1920, 1080)
 }
