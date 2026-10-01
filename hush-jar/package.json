@@ -1,0 +1,19 @@
+{
+  "name": "hush-jar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hush Jar: escritura privada y revelado anónimo de ideas para FigJam",
+  "scripts": {
+    "build": "esbuild widget-src/code.tsx --bundle --outfile=dist/code.js --target=es2017 --jsx-factory=figma.widget.h --jsx-fragment=figma.widget.Fragment",
+    "watch": "npm run build -- --watch",
+    "typecheck": "tsc --noEmit -p .",
+    "test": "npm run typecheck && npm run build && node scripts/smoke.mjs",
+    "imagenes": "node --no-warnings scripts/imagenes.mjs"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.140.0",
+    "@figma/widget-typings": "^1.13.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  }
+}

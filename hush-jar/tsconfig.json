@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "lib": ["es2017"],
+    "strict": true,
+    "noEmit": true,
+    "jsx": "react",
+    "jsxFactory": "figma.widget.h",
+    "jsxFragmentFactory": "figma.widget.Fragment",
+    "typeRoots": ["./node_modules/@figma"],
+    "types": ["plugin-typings", "widget-typings"]
+  },
+  "include": ["widget-src/**/*.tsx", "widget-src/**/*.ts"]
+}

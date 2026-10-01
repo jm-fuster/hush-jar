@@ -1,0 +1,106 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden}
+body{position:relative;font-family:Inter,system-ui,sans-serif;color:#1D1D1F;background:#F5F1E8}
+.dots{position:absolute;inset:0;background-image:radial-gradient(#D9D2C3 1.6px,transparent 1.6px);background-size:28px 28px;opacity:.7}
+.copy{position:absolute;left:130px;top:0;bottom:0;width:700px;display:flex;flex-direction:column;justify-content:center}
+.pill{align-self:flex-start;padding:10px 20px;border-radius:999px;background:#1D1D1F;color:#fff;font-size:22px;font-weight:600;letter-spacing:.2px}
+h1{margin:28px 0 18px;font-size:128px;line-height:1;font-weight:800;letter-spacing:-4px}
+.lead{margin:0 0 46px;font-size:41px;line-height:1.28;font-weight:500;color:#3A3834}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:22px}
+.steps li{display:flex;align-items:center;gap:20px;font-size:27px;font-weight:500;color:#2A2926}
+.steps b{flex:none;width:48px;height:48px;border-radius:50%;background:#FFD966;border:2px solid #1D1D1F;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700}
+.meta{margin:52px 0 0;font-size:22px;line-height:1.6;color:#6B6B66}
+
+.card{width:440px;padding:20px 24px;background:#fff;border:2px solid #E6E2D8;border-radius:28px;box-shadow:0 6px 20px rgba(0,0,0,.08);display:flex;flex-direction:column;align-items:center;gap:16px}
+.head{width:100%;height:20px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#6B6B66}
+.head .brand{font-weight:700;letter-spacing:.6px}
+.group{width:100%;display:flex;flex-direction:column;align-items:center}
+.title{font-size:20px;font-weight:700;text-align:center}
+.jar svg{display:block;width:170px;height:200px}
+.count{font-size:16px;font-weight:600}
+.hint{font-size:13px;line-height:19px;color:#6B6B66;text-align:center}
+.btn{width:100%;padding:12px 16px;border-radius:12px;text-align:center;font-size:15px;font-weight:600}
+.btn.primary{background:#1D1D1F;color:#fff;border:1px solid #1D1D1F}
+.btn.secondary{background:#fff;border:1px solid #D8D4CA}
+.timer{display:flex;gap:6px;align-items:center;font-size:12px;color:#6B6B66}
+.chip{padding:7px 11px;border-radius:999px;background:#F4F2EC;border:1px solid #E0DBCF;font-size:13px;color:#1D1D1F}
+.foot{font-size:12px;color:#6B6B66}
+.on-cover{position:absolute;left:1160px;top:140px;transform:scale(1.15);transform-origin:top left}
+/* réplica de la ventanita privada */
+.window{position:absolute;left:790px;top:560px;width:380px;background:#fff;border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,.20),0 0 0 1px rgba(0,0,0,.07);overflow:hidden;transform:scale(1.1);transform-origin:top left}
+.bar{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 16px;border-bottom:1px solid #E9E9E9;font-size:11px;font-weight:600}
+.bar span:last-child{font-size:16px;font-weight:400;color:#6B6B66}
+.wbody{padding:18px 18px 16px;font-size:13px;line-height:1.5}
+.eyebrow{display:inline-flex;margin:0 0 10px;padding:3px 9px;border-radius:999px;background:#F6F6F2;color:#6B6B66;font-size:11px;font-weight:600}
+.wq{margin:0 0 12px;font-size:16px;line-height:1.35;font-weight:700}
+.area{height:100px;padding:10px 12px;border:1px solid #1D1D1F;border-radius:10px;background:#F6F6F2;font-size:14px;line-height:1.45}
+.area i{display:inline-block;width:1.5px;height:17px;margin-left:1px;background:#1D1D1F;vertical-align:-3px}
+.row{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.wcount{color:#6B6B66;font-size:12px}
+.seal{padding:8px 14px;border-radius:8px;background:#1D1D1F;color:#fff;font-weight:600}
+.status{margin:10px 0 0;font-size:13px;color:#1D1D1F}
+/* notas anónimas que salen del tarro */
+.sticky{position:absolute;width:190px;height:190px;padding:20px;background:#FFE8A3;font-size:21px;line-height:1.3;font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,.08),0 12px 28px rgba(0,0,0,.12)}
+</style>
+<body>
+<div class="dots"></div>
+<section class="copy">
+  <span class="pill">Widget para FigJam</span>
+  <h1>Hush Jar</h1>
+  <p class="lead">Cada persona escribe en privado.<br>Las ideas salen anónimas.</p>
+  <ol class="steps"><li><b>1</b><span>Escribe en una ventana que solo ves tú</span></li><li><b>2</b><span>El tarro se llena, pero nadie puede leerlo</span></li><li><b>3</b><span>Ábrelo: salen como notas anónimas</span></li></ol>
+  <p class="meta">Una pregunta · Retrospectiva · Empezar · Dejar · Seguir<br>Español · English</p>
+</section>
+<div class="sticky" style="left:1690px;top:130px;transform:rotate(5deg)">Menos reuniones de seguimiento</div>
+<div class="sticky" style="left:1702px;top:395px;transform:rotate(-4deg)">Programar en pareja los bugs difíciles</div>
+<div class="sticky" style="left:1692px;top:660px;transform:rotate(3deg)">Enseñar algo cada viernes</div>
+<div class="card on-cover">
+  <div class="head"><span class="brand">HUSH JAR</span><span>Ronda 1</span></div>
+  <div class="group" style="gap:14px"><div class="title">¿Qué podríamos mejorar?</div><div class="jar"><svg width="180" height="212" viewBox="0 0 180 212" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="glassBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEF6F9"/><stop offset="1" stop-color="#D3E5ED"/></linearGradient>
+<linearGradient id="glassSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/><stop offset="0.35" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.8" stop-color="#6F97A8" stop-opacity="0"/><stop offset="1" stop-color="#6F97A8" stop-opacity="0.28"/></linearGradient>
+<linearGradient id="neck" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F4FAFC"/><stop offset="0.6" stop-color="#DCEAF0"/><stop offset="1" stop-color="#BCD3DD"/></linearGradient>
+<linearGradient id="lidSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8C6E3C"/><stop offset="0.22" stop-color="#C9A66B"/><stop offset="0.45" stop-color="#E2C590"/><stop offset="0.78" stop-color="#C9A66B"/><stop offset="1" stop-color="#8C6E3C"/></linearGradient>
+<linearGradient id="lidTop" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EDD4A2"/><stop offset="1" stop-color="#CFAE72"/></linearGradient>
+</defs>
+<ellipse cx="90" cy="201" rx="62" ry="8" fill="#000000" fill-opacity="0.08"/>
+<ellipse cx="90" cy="200" rx="46" ry="5" fill="#000000" fill-opacity="0.08"/>
+<rect x="24" y="44" width="132" height="152" rx="28" fill="url(#glassBack)"/>
+<g transform="rotate(-20 49 180)"><rect x="39" y="176" width="20" height="12" rx="2" fill="#b89c49"/><rect x="39" y="174" width="20" height="12" rx="2" fill="#FFD966"/><rect x="41" y="176" width="15" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.45"/></g><g transform="rotate(10 71 183)"><rect x="61" y="179" width="20" height="12" rx="2" fill="#b17a88"/><rect x="61" y="177" width="20" height="12" rx="2" fill="#F6A9BD"/><rect x="63" y="179" width="15" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.45"/></g><g transform="rotate(-1 93 181)"><rect x="83" y="177" width="20" height="12" rx="2" fill="#729e92"/><rect x="83" y="175" width="20" height="12" rx="2" fill="#9FDCCB"/><rect x="85" y="177" width="15" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.45"/></g><g transform="rotate(-12 115 184)"><rect x="105" y="180" width="20" height="12" rx="2" fill="#8883b0"/><rect x="105" y="178" width="20" height="12" rx="2" fill="#BDB6F4"/><rect x="107" y="180" width="15" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.45"/></g><g transform="rotate(18 130 182)"><rect x="120" y="178" width="20" height="12" rx="2" fill="#b88e67"/><rect x="120" y="176" width="20" height="12" rx="2" fill="#FFC58F"/><rect x="122" y="178" width="15" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.45"/></g><g transform="rotate(7 50 169)"><rect x="40" y="165" width="20" height="12" rx="2" fill="#b89c49"/><rect x="40" y="163" width="20" height="12" rx="2" fill="#FFD966"/><rect x="42" y="165" width="15" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.45"/></g><g transform="rotate(-4 69.5 172)"><rect x="59.5" y="168" width="20" height="12" rx="2" fill="#b17a88"/><rect x="59.5" y="166" width="20" height="12" rx="2" fill="#F6A9BD"/><rect x="61.5" y="168" width="15" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.45"/></g><g transform="rotate(-15 82 170)"><rect x="72" y="166" width="20" height="12" rx="2" fill="#729e92"/><rect x="72" y="164" width="20" height="12" rx="2" fill="#9FDCCB"/><rect x="74" y="166" width="15" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.45"/></g><g transform="rotate(15 101.5 173)"><rect x="91.5" y="169" width="20" height="12" rx="2" fill="#8883b0"/><rect x="91.5" y="167" width="20" height="12" rx="2" fill="#BDB6F4"/><rect x="93.5" y="169" width="15" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.45"/></g><g transform="rotate(4 121 171)"><rect x="111" y="167" width="20" height="12" rx="2" fill="#b88e67"/><rect x="111" y="165" width="20" height="12" rx="2" fill="#FFC58F"/><rect x="113" y="167" width="15" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.45"/></g><g transform="rotate(-7 140.5 169)"><rect x="130.5" y="165" width="20" height="12" rx="2" fill="#b89c49"/><rect x="130.5" y="163" width="20" height="12" rx="2" fill="#FFD966"/><rect x="132.5" y="165" width="15" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.45"/></g><g transform="rotate(-18 42 161)"><rect x="32" y="157" width="20" height="12" rx="2" fill="#b17a88"/><rect x="32" y="155" width="20" height="12" rx="2" fill="#F6A9BD"/><rect x="34" y="157" width="15" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.45"/></g><g transform="rotate(12 61.5 159)"><rect x="51.5" y="155" width="20" height="12" rx="2" fill="#729e92"/><rect x="51.5" y="153" width="20" height="12" rx="2" fill="#9FDCCB"/><rect x="53.5" y="155" width="15" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.45"/></g><g transform="rotate(1 81 162)"><rect x="71" y="158" width="20" height="12" rx="2" fill="#8883b0"/><rect x="71" y="156" width="20" height="12" rx="2" fill="#BDB6F4"/><rect x="73" y="158" width="15" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.45"/></g>
+<rect x="24" y="44" width="132" height="152" rx="28" fill="url(#glassSide)"/>
+<rect x="33" y="60" width="9" height="112" rx="4.5" fill="#FFFFFF" fill-opacity="0.6"/>
+<rect x="46" y="64" width="3.5" height="46" rx="1.75" fill="#FFFFFF" fill-opacity="0.45"/>
+<path d="M40 66 Q43 52 58 48" fill="none" stroke="#FFFFFF" stroke-opacity="0.8" stroke-width="3" stroke-linecap="round"/>
+<ellipse cx="90" cy="188" rx="44" ry="4" fill="#FFFFFF" fill-opacity="0.3"/>
+<rect x="24" y="44" width="132" height="152" rx="28" fill="none" stroke="#8FB0BE" stroke-width="2"/>
+<rect x="52" y="30" width="76" height="18" fill="url(#neck)" stroke="#8FB0BE" stroke-width="1.5"/>
+<ellipse cx="90" cy="30" rx="38" ry="6" fill="#E6F1F5" stroke="#8FB0BE" stroke-width="1.5"/>
+
+<g transform="translate(90 20)"><ellipse cx="0" cy="10" rx="46" ry="7" fill="#8C6E3C"/>
+<rect x="-46" y="-6" width="92" height="16" fill="url(#lidSide)"/>
+<rect x="-40" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-32" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-24" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-16" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-8" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="0" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="8" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="16" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="24" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="32" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="40" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/>
+<ellipse cx="0" cy="-6" rx="46" ry="7" fill="url(#lidTop)" stroke="#9C7A45" stroke-width="1"/>
+<ellipse cx="-10" cy="-8" rx="22" ry="2.5" fill="#FFFFFF" fill-opacity="0.35"/></g>
+</svg></div></div>
+  <div class="group" style="gap:12px">
+    <div class="group" style="gap:4px"><div class="count">14 ideas · 6 personas</div><div class="hint">Nadie puede leerlas hasta que se abra el tarro.</div></div>
+    <div class="btn primary">Escribir una idea</div>
+    <div class="btn secondary">Abrir el tarro</div>
+    <div class="timer"><span>⏱ Temporizador:</span><span class="chip">3 min</span><span class="chip">5 min</span><span class="chip">10 min</span></div>
+  </div>
+  <div class="foot">Dirige: Alex</div>
+</div>
+<div class="window">
+  <div class="bar"><span>Tu idea</span><span>×</span></div>
+  <div class="wbody">
+    <p class="eyebrow">🔒 Solo tú ves esta ventana</p>
+    <p class="wq">¿Qué podríamos mejorar?</p>
+    <div class="area">Las reuniones de los lunes se alargan demasiado y nadie se atreve a decirlo.<i></i></div>
+    <div class="row"><span class="wcount">76/280</span><span class="seal">Echar al tarro</span></div>
+    <p class="status">Guardando en el tarro… (unos 3 s, al azar para que nadie sepa cuándo lo hiciste)</p>
+  </div>
+</div>
+</body></html>

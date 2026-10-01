@@ -1,0 +1,13 @@
+{
+  "name": "Hush Jar · Spike Lab",
+  "id": "widget-id-hushjarlab01",
+  "api": "1.0.0",
+  "widgetApi": "1.0.0",
+  "editorType": ["figjam"],
+  "containsWidget": true,
+  "main": "dist/code.js",
+  "ui": "ui.html",
+  "documentAccess": "dynamic-page",
+  "networkAccess": { "allowedDomains": ["none"] },
+  "permissions": ["currentuser", "activeusers"]
+}

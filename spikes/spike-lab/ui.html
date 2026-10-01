@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; padding: 12px; font: 13px/1.45 Inter, system-ui, sans-serif; color: #1d1d1f; background: #fff; }
+  @media (prefers-color-scheme: dark) { body { color: #f2f2f2; background: #2c2c2c; } }
+  h1 { font-size: 13px; font-weight: 600; margin: 0 0 6px; }
+  #log { white-space: pre-wrap; font-family: ui-monospace, Consolas, monospace; font-size: 12px; min-height: 36px; }
+  textarea { box-sizing: border-box; width: 100%; margin-top: 8px; font: inherit; }
+  #out { height: 260px; font: 11px/1.4 ui-monospace, Consolas, monospace; display: none; }
+  #compose { display: none; }
+  #slip { height: 96px; resize: none; }
+  .row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+  button { padding: 6px 12px; border: 0; border-radius: 6px; background: #1d1d1f; color: #fff; font: inherit; cursor: pointer; }
+  button:disabled { opacity: .45; cursor: default; }
+  .muted { opacity: .65; font-size: 12px; }
+</style>
+</head>
+<body>
+  <h1 id="title">Hush Jar · Spike Lab</h1>
+  <div id="log">Cargando…</div>
+  <div id="compose">
+    <textarea id="slip" maxlength="280" placeholder="Escribe tu papelito (máx. 280 caracteres)"></textarea>
+    <div class="row">
+      <button id="seal">Sellar</button>
+      <span class="muted" id="count">0/280</span>
+    </div>
+  </div>
+  <textarea id="out" readonly></textarea>
+  <div class="row"><button id="close">Cerrar</button></div>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const send = (msg) => parent.postMessage({ pluginMessage: msg }, '*');
+
+  // Qué ofrece el entorno del iframe (decide dónde generar las claves aleatorias).
+  function probe() {
+    const r = { origin: String(location.origin) };
+    try {
+      r.crypto = !!(window.crypto && crypto.getRandomValues);
+      if (r.crypto) {
+        const a = new Uint8Array(12);
+        crypto.getRandomValues(a);
+        r.sample = Array.from(a, (b) => b.toString(16).padStart(2, '0')).join('');
+      }
+    } catch (e) { r.crypto = 'error: ' + e.message; }
+    try { localStorage.setItem('hj', '1'); r.localStorage = localStorage.getItem('hj') === '1' ? 'ok' : 'distinto'; }
+    catch (e) { r.localStorage = 'error: ' + e.message; }
+    try { r.indexedDB = typeof indexedDB; } catch (e) { r.indexedDB = 'error: ' + e.message; }
+    r.clipboardAPI = !!(navigator.clipboard && navigator.clipboard.writeText);
+    return r;
+  }
+
+  let ticks = null;
+  window.onmessage = (event) => {
+    const m = event.data && event.data.pluginMessage;
+    if (!m) return;
+    if (m.type === 'title') $('title').textContent = m.text;
+    if (m.type === 'log') $('log').textContent = m.text;
+    if (m.type === 'export') {
+      $('out').style.display = 'block';
+      $('out').value = m.text;
+      $('out').focus();
+      $('out').select();
+    }
+    if (m.type === 'compose') {
+      $('compose').style.display = 'block';
+      $('slip').focus();
+    }
+    if (m.type === 'countdown') {
+      let left = m.seconds;
+      const paint = () => {
+        $('log').textContent = left > 0
+          ? 'El temporizador de FigJam termina en ' + left + ' s. No toques nada.'
+          : 'Esperando a que FigJam confirme que ha terminado…';
+      };
+      paint();
+      const timer = setInterval(() => { left--; paint(); if (left <= 0) clearInterval(timer); }, 1000);
+    }
+    if (m.type === 'startTicks' && !ticks) {
+      let t = 0;
+      ticks = setInterval(() => send({ type: 'tick', t: ++t }), 1000);
+    }
+  };
+
+  $('slip').addEventListener('input', () => { $('count').textContent = $('slip').value.length + '/280'; });
+  $('seal').onclick = () => {
+    const text = $('slip').value.trim();
+    if (!text) return;
+    $('seal').disabled = true;
+    $('slip').disabled = true;
+    send({ type: 'seal', text });
+  };
+  $('close').onclick = () => send({ type: 'close' });
+  send({ type: 'ready', probe: probe() });
+</script>
+</body>
+</html>
