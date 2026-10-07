@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/FigJam-widget-1D1D1F?style=flat-square&logo=figma&logoColor=white" alt="FigJam widget">
   <img src="https://img.shields.io/badge/network-none-2E7D32?style=flat-square" alt="No network access">
   <img src="https://img.shields.io/badge/languages-English%20%C2%B7%20Espa%C3%B1ol-FFD966?style=flat-square" alt="English and Spanish">
-  <img src="https://img.shields.io/badge/Figma%20Community-in%20review-A39D90?style=flat-square" alt="Figma Community: in review">
+  <a href="https://www.figma.com/community/widget/1687376763274373878"><img src="https://img.shields.io/badge/Figma%20Community-get%20the%20widget-1D1D1F?style=flat-square&logo=figma&logoColor=white" alt="Get it on the Figma Community"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-3A3834?style=flat-square" alt="MIT license"></a>
 </p>
 
@@ -63,7 +63,9 @@ The full list of what gets stored, and where, is in the [data security answers](
 
 ## Install
 
-Hush Jar has been submitted to the Figma Community and is waiting for review. Until then you can run it from source in Figma Desktop:
+**[Get Hush Jar on the Figma Community](https://www.figma.com/community/widget/1687376763274373878)**, then insert it in any FigJam board from **Widgets**. The first jar starts in English; switch to Spanish under **Language** in the widget's menu.
+
+To run it from source in Figma Desktop instead:
 
 1. Clone this repository or download it as a ZIP.
 2. In a FigJam file, open **Main menu → Widgets → Development → Import widget from manifest…** and pick `hush-jar/manifest.json`.
@@ -100,10 +102,11 @@ The step-by-step testing and publishing guide is in [`hush-jar/README.md`](hush-
 
 ## Status
 
-Version 0.4. Known gaps:
+The Community version is 0.4. This repository has 0.5, which is still being tested in FigJam: a "3 of 5 have written" counter, renamable retro columns and anonymous voting after the jar is opened.
+
+Known gaps:
 
 - Copies of a jar aren't protected yet, so a duplicate could be used to open ideas that aren't yours.
-- The Community listing is in review. This README will link to it once it's live.
 
 ## License
 

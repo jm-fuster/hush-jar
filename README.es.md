@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/FigJam-widget-1D1D1F?style=flat-square&logo=figma&logoColor=white" alt="Widget de FigJam">
   <img src="https://img.shields.io/badge/red-ninguna-2E7D32?style=flat-square" alt="Sin acceso a internet">
   <img src="https://img.shields.io/badge/idiomas-Espa%C3%B1ol%20%C2%B7%20English-FFD966?style=flat-square" alt="Español e inglés">
-  <img src="https://img.shields.io/badge/Comunidad%20de%20Figma-en%20revisi%C3%B3n-A39D90?style=flat-square" alt="Comunidad de Figma: en revisión">
+  <a href="https://www.figma.com/community/widget/1687376763274373878"><img src="https://img.shields.io/badge/Comunidad%20de%20Figma-cons%C3%ADguelo-1D1D1F?style=flat-square&logo=figma&logoColor=white" alt="Consíguelo en la Comunidad de Figma"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/licencia-MIT-3A3834?style=flat-square" alt="Licencia MIT"></a>
 </p>
 
@@ -63,7 +63,9 @@ La lista completa de qué se guarda y dónde está en las [respuestas de segurid
 
 ## Instalarlo
 
-Hush Jar ya está enviado a la Comunidad de Figma y espera la revisión. Mientras tanto, puedes usarlo desde el código en Figma Desktop:
+**[Consigue Hush Jar en la Comunidad de Figma](https://www.figma.com/community/widget/1687376763274373878)** y luego insértalo en cualquier tablero de FigJam desde **Widgets**. El primer tarro sale en inglés: cámbialo a español en **Language** dentro del menú del widget.
+
+Si prefieres usarlo desde el código en Figma Desktop:
 
 1. Clona este repositorio o descárgalo en ZIP.
 2. En un archivo de FigJam, ve a **menú principal → Widgets → Desarrollo → Importar widget desde manifiesto…** y elige `hush-jar/manifest.json`.
@@ -100,10 +102,11 @@ El manual de uso y de publicación está en [`hush-jar/README.md`](hush-jar/READ
 
 ## Estado
 
-Versión 0.4. Lo que falta:
+La versión de la Comunidad es la 0.4. Este repositorio tiene la 0.5, que aún se está probando en FigJam: un contador «3 de 5 han escrito», columnas de retro con nombre propio y votación anónima después de abrir el tarro.
+
+Lo que falta:
 
 - Las copias de un tarro todavía no están protegidas, así que un duplicado podría servir para abrir ideas ajenas.
-- La ficha de la Comunidad está en revisión. Este README la enlazará cuando esté publicada.
 
 ## Licencia
 
