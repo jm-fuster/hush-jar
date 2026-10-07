@@ -4,6 +4,7 @@
 //   publicar/portada-en.png       1920 × 1080 (la miniatura de la ficha en la Comunidad)
 //   publicar/portada-es.png       1920 × 1080 (la misma, en español, por si la quieres en el carrusel)
 //   publicar/pasos-en.png         1920 × 1080 (cómo funciona, en tres pasos: README y carrusel; y -es)
+//   publicar/votar-en.png         1920 × 1080 (la votación anónima, para el carrusel; y -es)
 // Usa el mismo dibujo del tarro y los mismos textos que el widget, y las fotografía con Edge sin
 // ventana. Las páginas HTML intermedias se quedan en publicar/fuentes/ por si quieres retocarlas.
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
@@ -19,8 +20,9 @@ const outDir = join(root, 'publicar')
 const srcDir = join(outDir, 'fuentes')
 mkdirSync(srcDir, { recursive: true })
 
-const EDGE = ['C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Microsoft/Edge/Application/msedge.exe'].find((p) => existsSync(p))
-if (!EDGE) throw new Error('No encuentro Microsoft Edge para hacer las capturas.')
+// Chrome primero: Edge, cuando está a medio actualizar, a veces termina sin devolver nada.
+const EDGE = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Microsoft/Edge/Application/msedge.exe'].find((p) => existsSync(p))
+if (!EDGE) throw new Error('No encuentro Chrome ni Edge para hacer las capturas.')
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const FONT = '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=block" rel="stylesheet">'
@@ -39,39 +41,60 @@ const COPY = {
   en: {
     pill: 'FigJam widget',
     lead: 'Everyone writes in private.<br>Ideas come out anonymous.',
-    steps: ['Write in a window only you can see', 'The jar fills up, but nobody can read it', 'Open it: ideas land as anonymous stickies'],
+    steps: ['Write in a window only you can see', 'The jar fills up, but nobody can read it', 'Open it and vote, all without names'],
     typed: 'Our Monday meetings run too long, and nobody dares to say it.',
     stickies: ['Fewer status meetings', 'Pair up on tricky bugs', 'Demo something every Friday'],
     leader: 'Alex',
     howPill: 'How it works',
     howTitle: 'Three steps, zero names.',
     how: [
-      ['Write in private', 'Everyone opens their own window. Each idea is saved after a random delay, so timing gives no one away.'],
-      ['The jar fills up', 'The board only shows how many ideas and people there are. Nobody can read a thing.'],
-      ['Open the jar', 'Ideas land shuffled, as regular FigJam stickies with no names. Ready to group and vote on.'],
+      ['Write in private', 'Everyone opens their own window. You can edit or remove your ideas until the jar is opened.'],
+      ['The jar fills up', 'The board only shows how many ideas there are and how many people have written. Nobody can read a thing.'],
+      ['Open the jar', 'Ideas land shuffled, as regular FigJam stickies with no names. Then everyone votes anonymously on what to discuss first.'],
     ],
+    votePill: 'New: voting',
+    voteTitle: 'Then vote, without names.',
+    voteLead: 'Everyone gets 3 secret votes. The top ideas go first.',
+    retroTitle: 'Sprint 12 retro',
+    voteNotes: [['mejorar', 'Monday meetings run long', true], ['probar', 'Pair up on tricky bugs', true], ['bien', 'Demo day went great', false], ['mejorar', 'Unclear priorities', true], ['probar', 'Async daily updates', false], ['bien', 'Faster code reviews', false]],
+    top: [[5, 'Monday meetings run long'], [4, 'Unclear priorities'], [3, 'Pair up on tricky bugs']],
     retro: { bien: ['Demo day went great', 'Faster code reviews'], mejorar: ['Monday meetings run long', 'Unclear priorities'], probar: ['Pair up on tricky bugs', 'Async daily updates'] },
   },
   es: {
     pill: 'Widget para FigJam',
     lead: 'Cada persona escribe en privado.<br>Las ideas salen anónimas.',
-    steps: ['Escribe en una ventana que solo ves tú', 'El tarro se llena, pero nadie puede leerlo', 'Ábrelo: salen como notas anónimas'],
+    steps: ['Escribe en una ventana que solo ves tú', 'El tarro se llena, pero nadie puede leerlo', 'Ábrelo y votad, todo sin nombres'],
     typed: 'Las reuniones de los lunes se alargan demasiado y nadie se atreve a decirlo.',
     stickies: ['Menos reuniones de seguimiento', 'Programar en pareja los bugs difíciles', 'Enseñar algo cada viernes'],
     leader: 'Alex',
     howPill: 'Cómo funciona',
     howTitle: 'Tres pasos, ningún nombre.',
     how: [
-      ['Escribe en privado', 'Cada persona abre su propia ventana. Las ideas se guardan con un retraso al azar, para que el momento no delate a nadie.'],
-      ['El tarro se llena', 'En el tablero solo se ve cuántas ideas y cuántas personas hay. Nadie puede leer nada.'],
-      ['Abre el tarro', 'Las ideas salen mezcladas, como notas normales de FigJam y sin nombre. Listas para agrupar y votar.'],
+      ['Escribe en privado', 'Cada persona abre su propia ventana. Puedes editar o retirar tus ideas hasta que se abra el tarro.'],
+      ['El tarro se llena', 'En el tablero solo se ve cuántas ideas hay y cuántas personas han escrito. Nadie puede leer nada.'],
+      ['Abre el tarro', 'Las ideas salen mezcladas, como notas normales de FigJam y sin nombre. Después cada persona vota, en secreto, qué tratar primero.'],
     ],
+    votePill: 'Novedad: votar',
+    voteTitle: 'Después, votad sin nombres.',
+    voteLead: 'Cada persona tiene 3 votos secretos. Las más votadas van primero.',
+    retroTitle: 'Retro del sprint 12',
+    voteNotes: [['mejorar', 'Los lunes, reuniones eternas', true], ['probar', 'Bugs difíciles en pareja', true], ['bien', 'La demo salió genial', false], ['mejorar', 'Prioridades poco claras', true], ['probar', 'Dailies por escrito', false], ['bien', 'Revisiones más rápidas', false]],
+    top: [[5, 'Los lunes, reuniones eternas'], [4, 'Prioridades poco claras'], [3, 'Bugs difíciles en pareja']],
     retro: { bien: ['La demo salió genial', 'Revisiones más rápidas'], mejorar: ['Los lunes, reuniones eternas', 'Prioridades poco claras'], probar: ['Bugs difíciles en pareja', 'Dailies por escrito'] },
   },
 }
 
 // ---------- réplica del widget con el tarro abierto a ideas ----------
 // Mismas medidas, colores y textos que widget-src/code.tsx.
+// Bocadillo con las ideas y barra de quién ha escrito, como en el widget.
+const BITS = `
+.jarbox{position:relative;width:100%;height:200px;display:flex;justify-content:center}
+.bubble{position:absolute;left:234px;top:4px;padding:7px 12px;border-radius:14px;background:#fff;border:1.5px solid #D8D4CA;font-size:15px;font-weight:700;white-space:nowrap}
+.bubble:after{content:'';position:absolute;left:12px;bottom:-6px;width:10px;height:10px;background:#fff;border-right:1.5px solid #D8D4CA;border-bottom:1.5px solid #D8D4CA;transform:rotate(45deg) skew(10deg,10deg)}
+.prog{width:200px;height:6px;border-radius:3px;background:#EEEAE0;overflow:hidden}
+.prog i{display:block;height:100%;border-radius:3px;background:#1D1D1F}
+.wrote{font-size:13px;color:#6B6B66}`
+
 const CARD_CSS = `
 .card{width:440px;padding:20px 24px;background:#fff;border:2px solid #E6E2D8;border-radius:28px;box-shadow:0 6px 20px rgba(0,0,0,.08);display:flex;flex-direction:column;align-items:center;gap:16px}
 .head{width:100%;height:20px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#6B6B66}
@@ -80,6 +103,7 @@ const CARD_CSS = `
 .title{font-size:20px;font-weight:700;text-align:center}
 .jar svg{display:block;width:170px;height:200px}
 .count{font-size:16px;font-weight:600}
+${BITS}
 .hint{font-size:13px;line-height:19px;color:#6B6B66;text-align:center}
 .btn{width:100%;padding:12px 16px;border-radius:12px;text-align:center;font-size:15px;font-weight:600}
 .btn.primary{background:#1D1D1F;color:#fff;border:1px solid #1D1D1F}
@@ -92,9 +116,9 @@ function card(lang, extraClass = '') {
   const t = strings(lang)
   return `<div class="card ${extraClass}">
   <div class="head"><span class="brand">HUSH JAR</span><span>${esc(t.round(1))}</span></div>
-  <div class="group" style="gap:14px"><div class="title">${esc(t.suggestions[0])}</div><div class="jar">${jarSvg(14, false)}</div></div>
+  <div class="group" style="gap:14px"><div class="title">${esc(t.suggestions[0])}</div><div class="jarbox"><div class="jar">${jarSvg(14, false)}</div><span class="bubble">${esc(t.ideas(14))}</span></div></div>
   <div class="group" style="gap:12px">
-    <div class="group" style="gap:4px"><div class="count">${esc(`${t.ideas(14)} · ${t.people(6)}`)}</div><div class="hint">${esc(t.nobodyReads)}</div></div>
+    <div class="group" style="gap:6px"><div class="prog"><i style="width:83%"></i></div><div class="wrote">${esc(t.wroteOf(5, 6))}</div></div>
     <div class="btn primary">${esc(t.write)}</div>
     <div class="btn secondary">${esc(t.open)}</div>
     <div class="timer"><span>${esc(t.timer)}</span><span class="chip">3 min</span><span class="chip">5 min</span><span class="chip">10 min</span></div>
@@ -128,7 +152,7 @@ function privateWindow(lang) {
     <p class="wq">${esc(t.suggestions[0])}</p>
     <div class="area">${esc(c.typed)}<i></i></div>
     <div class="row"><span class="wcount">${c.typed.length}/280</span><span class="seal">${esc(t.panel.seal)}</span></div>
-    <p class="status">${esc(t.panel.saving + t.panel.delay.replace('{s}', '3'))}</p>
+    
   </div>
 </div>`
 }
@@ -199,7 +223,7 @@ function steps(lang) {
   </div>`).join('')
   const visuals = [
     `<div class="w-wrap">${privateWindow(lang)}</div>`,
-    `<div class="jar-wrap">${jarSvg(14, false)}<div class="count">${esc(`${t.ideas(14)} · ${t.people(6)}`)}</div><div class="hint">${esc(t.nobodyReads)}</div></div>`,
+    `<div class="jar-wrap"><div class="jar-in">${jarSvg(14, false)}<span class="bubble big">${esc(t.ideas(14))}</span></div><div class="prog big"><i style="width:83%"></i></div><div class="hint">${esc(t.wroteOf(5, 6))}</div></div>`,
     `<div class="sections">${sections}</div>`,
   ]
   return `<!doctype html><html lang="${lang}"><meta charset="utf-8">${FONT}
@@ -219,12 +243,15 @@ h2{margin:0;font-size:72px;line-height:1;font-weight:800;letter-spacing:-2px}
 .caption h3{margin:4px 0 10px;font-size:32px;line-height:1.1;font-weight:700;letter-spacing:-.5px}
 .caption p{margin:0;font-size:22px;line-height:1.4;color:#55534E}
 ${WINDOW_CSS}
+${BITS}
 .w-wrap{width:380px;transform:scale(1.08);transform-origin:center}
 .window{box-shadow:0 12px 34px rgba(0,0,0,.14),0 0 0 1px rgba(0,0,0,.07)}
 .jar-wrap{display:flex;flex-direction:column;align-items:center}
 .jar-wrap svg{display:block;width:221px;height:260px}
-.count{margin-top:18px;font-size:24px;font-weight:600}
-.hint{margin-top:6px;font-size:17px;color:#6B6B66}
+.jar-in{position:relative}
+.bubble.big{left:170px;top:0;font-size:22px;padding:9px 16px;border-radius:18px}
+.prog.big{width:260px;height:8px;margin-top:22px}
+.hint{margin-top:10px;font-size:19px;color:#6B6B66}
 .sections{display:flex;gap:14px}
 .section{position:relative;width:152px;padding:44px 12px 14px;border-radius:12px;background:color-mix(in srgb,var(--c) 28%,#fff);border:1.5px solid color-mix(in srgb,var(--c) 70%,#8C8676);display:flex;flex-direction:column;gap:12px}
 .stag{position:absolute;left:10px;top:10px;padding:3px 9px;border-radius:6px;background:var(--c);font-size:13px;font-weight:600;white-space:nowrap}
@@ -240,12 +267,83 @@ ${WINDOW_CSS}
 </body></html>`
 }
 
+// ---------- votar: la ventanita de votos y el tarro con las más votadas ----------
+const HEX = { bien: '#AFF4C6', mejorar: '#FFC7C2', probar: '#BDE3FF' } // los de widget-src/code.tsx
+
+function voting(lang) {
+  const t = strings(lang)
+  const c = COPY[lang]
+  const notes = c.voteNotes.map(([col, text, on]) => `<div class="vnote${on ? ' on' : ''}"><span class="dot" style="background:${HEX[col]}"></span><span class="vt">${esc(text)}</span><span class="check">${on ? '✓' : ''}</span></div>`).join('')
+  const counts = { bien: 4, mejorar: 5, probar: 3 }
+  const tags = Object.keys(HEX).map((id) => `<span class="tag"><span class="dot" style="background:${HEX[id]}"></span>${esc(t.columns[id])} <b>${counts[id]}</b></span>`).join('')
+  const top = c.top.map(([n, text]) => `<div class="top"><b>${esc(t.votesCount(n))}</b><span>${esc(text)}</span></div>`).join('')
+  return `<!doctype html><html lang="${lang}"><meta charset="utf-8">${FONT}
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden}
+body{position:relative;font-family:Inter,system-ui,sans-serif;color:#1D1D1F;background:#F5F1E8}
+.dots{position:absolute;inset:0;background-image:radial-gradient(#D9D2C3 1.6px,transparent 1.6px);background-size:28px 28px;opacity:.7}
+header{position:absolute;left:110px;top:84px;width:700px;display:flex;flex-direction:column;align-items:flex-start;gap:24px}
+.pill{padding:10px 20px;border-radius:999px;background:#1D1D1F;color:#fff;font-size:22px;font-weight:600}
+h2{margin:0;font-size:72px;line-height:1.02;font-weight:800;letter-spacing:-2px}
+.lead{margin:0;font-size:30px;line-height:1.35;color:#3A3834}
+${CARD_CSS}
+${WINDOW_CSS}
+.dot{flex:none;width:10px;height:10px;border-radius:50%;border:1px solid rgba(0,0,0,.15)}
+.help{margin:-4px 0 10px;color:#6B6B66}
+.vnotes{display:flex;flex-direction:column;gap:6px}
+.vnote{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1.5px solid #E2E2DC;border-radius:8px;font-size:13px}
+.vnote.on{border-color:#1D1D1F;font-weight:600}
+.vnote:not(.on){opacity:.45}
+.vt{flex:1}
+.check{width:18px;height:18px;border-radius:50%;border:1.5px solid #E2E2DC;display:grid;place-items:center;font-size:11px}
+.vnote.on .check{background:#1D1D1F;border-color:#1D1D1F;color:#fff}
+.vote-win{position:absolute;left:110px;top:450px;transform:scale(1.22);transform-origin:top left}
+.on-right{position:absolute;left:1180px;top:80px;transform:scale(1.4);transform-origin:top left}
+.tags{display:flex;gap:14px;font-size:13px}
+.tag{display:flex;align-items:center;gap:6px}
+.label{width:100%;font-size:12px;font-weight:700;color:#6B6B66;letter-spacing:.4px}
+.top{width:100%;display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;background:#F4F2EC;font-size:13px}
+.top span{flex:1}
+.btns{width:100%;display:flex;gap:8px}
+.arrow{position:absolute;left:760px;top:640px;font-size:110px;font-weight:300;color:#1D1D1F}
+</style>
+<body>
+<div class="dots"></div>
+<header><span class="pill">${esc(c.votePill)}</span><h2>${esc(c.voteTitle)}</h2><p class="lead">${esc(c.voteLead)}</p></header>
+<div class="window vote-win">
+  <div class="bar"><span>${esc(t.vote(3))}</span><span>×</span></div>
+  <div class="wbody">
+    <p class="eyebrow">${esc(t.panel.voteEyebrow)}</p>
+    <p class="wq">${esc(c.retroTitle)}</p>
+    <p class="help">${esc(t.panel.voteHelp)}</p>
+    <div class="vnotes">${notes}</div>
+    <div class="row"><span class="wcount">${esc(t.panel.votesLeft.replace('{n}', '0').replace('{max}', '3'))}</span><span class="seal">${esc(t.panel.saveVotes)}</span></div>
+  </div>
+</div>
+<div class="arrow">→</div>
+<div class="card on-right">
+  <div class="head"><span class="brand">HUSH JAR</span><span>${esc(t.round(1))}</span></div>
+  <div class="title">${esc(c.retroTitle)}</div>
+  <div class="jar" style="height:140px;display:flex;align-items:center"><div style="transform:scale(.7)">${jarSvg(0, true)}</div></div>
+  <div class="count">${esc(t.opened(12))}</div>
+  <div class="tags">${tags}</div>
+  <div class="label">${esc(t.topIdeas)}</div>
+  ${top}
+  <div class="btns"><div class="btn secondary">${esc(t.showIdeas)}</div><div class="btn primary">${esc(t.newRound)}</div></div>
+  <div class="foot">${esc(t.ledBy(c.leader))}</div>
+</div>
+</body></html>`
+}
+
 // ---------- capturas ----------
-const profile = join(tmpdir(), 'hushjar-edge-capturas')
-const BASE_ARGS = ['--headless=new', '--disable-gpu', '--hide-scrollbars', '--no-first-run', '--no-default-browser-check', `--user-data-dir=${profile}`, '--virtual-time-budget=15000']
+const BASE_ARGS = ['--headless=new', '--disable-gpu', '--hide-scrollbars', '--no-first-run', '--no-default-browser-check', '--virtual-time-budget=15000']
+// Un perfil nuevo en cada captura: si la anterior aún no ha cerrado y comparten perfil, Edge le
+// pasa el trabajo a esa y devuelve vacío.
+let shots = 0
 
 function edge(args) {
-  return spawnSync(EDGE, [...BASE_ARGS, ...args], { encoding: 'utf8', timeout: 120000, maxBuffer: 64 * 1024 * 1024 })
+  return spawnSync(EDGE, [...BASE_ARGS, `--user-data-dir=${join(tmpdir(), `hushjar-edge-${Date.now()}-${shots++}`)}`, ...args], { encoding: 'utf8', timeout: 120000, maxBuffer: 64 * 1024 * 1024 })
 }
 
 // Carga la página y devuelve el alto que escribe en el título (para ajustar la captura al widget).
@@ -282,4 +380,5 @@ for (const lang of ['en', 'es']) {
   shoot(`instantanea-${lang}`, html, 440 + SNAP_PAD * 2, height + SNAP_PAD * 2, { scale: 2, transparent: true })
   shoot(`portada-${lang}`, cover(lang), 1920, 1080)
   shoot(`pasos-${lang}`, steps(lang), 1920, 1080)
+  shoot(`votar-${lang}`, voting(lang), 1920, 1080)
 }

@@ -27,12 +27,21 @@ h2{margin:0;font-size:72px;line-height:1;font-weight:800;letter-spacing:-2px}
 .wcount{color:#6B6B66;font-size:12px}
 .seal{padding:8px 14px;border-radius:8px;background:#1D1D1F;color:#fff;font-weight:600}
 .status{margin:10px 0 0;font-size:13px;color:#1D1D1F}
+
+.jarbox{position:relative;width:100%;height:200px;display:flex;justify-content:center}
+.bubble{position:absolute;left:234px;top:4px;padding:7px 12px;border-radius:14px;background:#fff;border:1.5px solid #D8D4CA;font-size:15px;font-weight:700;white-space:nowrap}
+.bubble:after{content:'';position:absolute;left:12px;bottom:-6px;width:10px;height:10px;background:#fff;border-right:1.5px solid #D8D4CA;border-bottom:1.5px solid #D8D4CA;transform:rotate(45deg) skew(10deg,10deg)}
+.prog{width:200px;height:6px;border-radius:3px;background:#EEEAE0;overflow:hidden}
+.prog i{display:block;height:100%;border-radius:3px;background:#1D1D1F}
+.wrote{font-size:13px;color:#6B6B66}
 .w-wrap{width:380px;transform:scale(1.08);transform-origin:center}
 .window{box-shadow:0 12px 34px rgba(0,0,0,.14),0 0 0 1px rgba(0,0,0,.07)}
 .jar-wrap{display:flex;flex-direction:column;align-items:center}
 .jar-wrap svg{display:block;width:221px;height:260px}
-.count{margin-top:18px;font-size:24px;font-weight:600}
-.hint{margin-top:6px;font-size:17px;color:#6B6B66}
+.jar-in{position:relative}
+.bubble.big{left:170px;top:0;font-size:22px;padding:9px 16px;border-radius:18px}
+.prog.big{width:260px;height:8px;margin-top:22px}
+.hint{margin-top:10px;font-size:19px;color:#6B6B66}
 .sections{display:flex;gap:14px}
 .section{position:relative;width:152px;padding:44px 12px 14px;border-radius:12px;background:color-mix(in srgb,var(--c) 28%,#fff);border:1.5px solid color-mix(in srgb,var(--c) 70%,#8C8676);display:flex;flex-direction:column;gap:12px}
 .stag{position:absolute;left:10px;top:10px;padding:3px 9px;border-radius:6px;background:var(--c);font-size:13px;font-weight:600;white-space:nowrap}
@@ -49,12 +58,12 @@ h2{margin:0;font-size:72px;line-height:1;font-weight:800;letter-spacing:-2px}
     <p class="wq">¿Qué podríamos mejorar?</p>
     <div class="area">Las reuniones de los lunes se alargan demasiado y nadie se atreve a decirlo.<i></i></div>
     <div class="row"><span class="wcount">76/280</span><span class="seal">Echar al tarro</span></div>
-    <p class="status">Guardando en el tarro… (unos 3 s, al azar para que nadie sepa cuándo lo hiciste)</p>
+    
   </div>
 </div></div></div>
-  <div class="caption"><b>1</b><div><h3>Escribe en privado</h3><p>Cada persona abre su propia ventana. Las ideas se guardan con un retraso al azar, para que el momento no delate a nadie.</p></div></div>
+  <div class="caption"><b>1</b><div><h3>Escribe en privado</h3><p>Cada persona abre su propia ventana. Puedes editar o retirar tus ideas hasta que se abra el tarro.</p></div></div>
 </article><article class="step">
-  <div class="visual"><div class="jar-wrap"><svg width="180" height="212" viewBox="0 0 180 212" xmlns="http://www.w3.org/2000/svg">
+  <div class="visual"><div class="jar-wrap"><div class="jar-in"><svg width="180" height="212" viewBox="0 0 180 212" xmlns="http://www.w3.org/2000/svg">
 <defs>
 <linearGradient id="glassBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEF6F9"/><stop offset="1" stop-color="#D3E5ED"/></linearGradient>
 <linearGradient id="glassSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/><stop offset="0.35" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.8" stop-color="#6F97A8" stop-opacity="0"/><stop offset="1" stop-color="#6F97A8" stop-opacity="0.28"/></linearGradient>
@@ -80,8 +89,8 @@ h2{margin:0;font-size:72px;line-height:1;font-weight:800;letter-spacing:-2px}
 <rect x="-40" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-32" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-24" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-16" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-8" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="0" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="8" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="16" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="24" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="32" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="40" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/>
 <ellipse cx="0" cy="-6" rx="46" ry="7" fill="url(#lidTop)" stroke="#9C7A45" stroke-width="1"/>
 <ellipse cx="-10" cy="-8" rx="22" ry="2.5" fill="#FFFFFF" fill-opacity="0.35"/></g>
-</svg><div class="count">14 ideas · 6 personas</div><div class="hint">Nadie puede leerlas hasta que se abra el tarro.</div></div></div>
-  <div class="caption"><b>2</b><div><h3>El tarro se llena</h3><p>En el tablero solo se ve cuántas ideas y cuántas personas hay. Nadie puede leer nada.</p></div></div>
+</svg><span class="bubble big">14 ideas</span></div><div class="prog big"><i style="width:83%"></i></div><div class="hint">5 de 6 personas han escrito</div></div></div>
+  <div class="caption"><b>2</b><div><h3>El tarro se llena</h3><p>En el tablero solo se ve cuántas ideas hay y cuántas personas han escrito. Nadie puede leer nada.</p></div></div>
 </article><article class="step">
   <div class="visual"><div class="sections"><div class="section" style="--c:#AFF4C6">
     <span class="stag">Qué fue bien</span>
@@ -93,6 +102,6 @@ h2{margin:0;font-size:72px;line-height:1;font-weight:800;letter-spacing:-2px}
     <span class="stag">Qué probar</span>
     <div class="note" style="transform:rotate(-1.5deg)">Bugs difíciles en pareja</div><div class="note" style="transform:rotate(1deg)">Dailies por escrito</div>
   </div></div></div>
-  <div class="caption"><b>3</b><div><h3>Abre el tarro</h3><p>Las ideas salen mezcladas, como notas normales de FigJam y sin nombre. Listas para agrupar y votar.</p></div></div>
+  <div class="caption"><b>3</b><div><h3>Abre el tarro</h3><p>Las ideas salen mezcladas, como notas normales de FigJam y sin nombre. Después cada persona vota, en secreto, qué tratar primero.</p></div></div>
 </article></section>
 </body></html>

@@ -20,6 +20,13 @@ h1{margin:28px 0 18px;font-size:128px;line-height:1;font-weight:800;letter-spaci
 .title{font-size:20px;font-weight:700;text-align:center}
 .jar svg{display:block;width:170px;height:200px}
 .count{font-size:16px;font-weight:600}
+
+.jarbox{position:relative;width:100%;height:200px;display:flex;justify-content:center}
+.bubble{position:absolute;left:234px;top:4px;padding:7px 12px;border-radius:14px;background:#fff;border:1.5px solid #D8D4CA;font-size:15px;font-weight:700;white-space:nowrap}
+.bubble:after{content:'';position:absolute;left:12px;bottom:-6px;width:10px;height:10px;background:#fff;border-right:1.5px solid #D8D4CA;border-bottom:1.5px solid #D8D4CA;transform:rotate(45deg) skew(10deg,10deg)}
+.prog{width:200px;height:6px;border-radius:3px;background:#EEEAE0;overflow:hidden}
+.prog i{display:block;height:100%;border-radius:3px;background:#1D1D1F}
+.wrote{font-size:13px;color:#6B6B66}
 .hint{font-size:13px;line-height:19px;color:#6B6B66;text-align:center}
 .btn{width:100%;padding:12px 16px;border-radius:12px;text-align:center;font-size:15px;font-weight:600}
 .btn.primary{background:#1D1D1F;color:#fff;border:1px solid #1D1D1F}
@@ -51,7 +58,7 @@ h1{margin:28px 0 18px;font-size:128px;line-height:1;font-weight:800;letter-spaci
   <span class="pill">Widget para FigJam</span>
   <h1>Hush Jar</h1>
   <p class="lead">Cada persona escribe en privado.<br>Las ideas salen anónimas.</p>
-  <ol class="steps"><li><b>1</b><span>Escribe en una ventana que solo ves tú</span></li><li><b>2</b><span>El tarro se llena, pero nadie puede leerlo</span></li><li><b>3</b><span>Ábrelo: salen como notas anónimas</span></li></ol>
+  <ol class="steps"><li><b>1</b><span>Escribe en una ventana que solo ves tú</span></li><li><b>2</b><span>El tarro se llena, pero nadie puede leerlo</span></li><li><b>3</b><span>Ábrelo y votad, todo sin nombres</span></li></ol>
   <p class="meta">Una pregunta · Retrospectiva · Empezar · Dejar · Seguir<br>Español · English</p>
 </section>
 <div class="sticky" style="left:1690px;top:130px;transform:rotate(5deg)">Menos reuniones de seguimiento</div>
@@ -59,7 +66,7 @@ h1{margin:28px 0 18px;font-size:128px;line-height:1;font-weight:800;letter-spaci
 <div class="sticky" style="left:1692px;top:660px;transform:rotate(3deg)">Enseñar algo cada viernes</div>
 <div class="card on-cover">
   <div class="head"><span class="brand">HUSH JAR</span><span>Ronda 1</span></div>
-  <div class="group" style="gap:14px"><div class="title">¿Qué podríamos mejorar?</div><div class="jar"><svg width="180" height="212" viewBox="0 0 180 212" xmlns="http://www.w3.org/2000/svg">
+  <div class="group" style="gap:14px"><div class="title">¿Qué podríamos mejorar?</div><div class="jarbox"><div class="jar"><svg width="180" height="212" viewBox="0 0 180 212" xmlns="http://www.w3.org/2000/svg">
 <defs>
 <linearGradient id="glassBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEF6F9"/><stop offset="1" stop-color="#D3E5ED"/></linearGradient>
 <linearGradient id="glassSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/><stop offset="0.35" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.8" stop-color="#6F97A8" stop-opacity="0"/><stop offset="1" stop-color="#6F97A8" stop-opacity="0.28"/></linearGradient>
@@ -85,9 +92,9 @@ h1{margin:28px 0 18px;font-size:128px;line-height:1;font-weight:800;letter-spaci
 <rect x="-40" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-32" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-24" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-16" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-8" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="0" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="8" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="16" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="24" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="32" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="40" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/>
 <ellipse cx="0" cy="-6" rx="46" ry="7" fill="url(#lidTop)" stroke="#9C7A45" stroke-width="1"/>
 <ellipse cx="-10" cy="-8" rx="22" ry="2.5" fill="#FFFFFF" fill-opacity="0.35"/></g>
-</svg></div></div>
+</svg></div><span class="bubble">14 ideas</span></div></div>
   <div class="group" style="gap:12px">
-    <div class="group" style="gap:4px"><div class="count">14 ideas · 6 personas</div><div class="hint">Nadie puede leerlas hasta que se abra el tarro.</div></div>
+    <div class="group" style="gap:6px"><div class="prog"><i style="width:83%"></i></div><div class="wrote">5 de 6 personas han escrito</div></div>
     <div class="btn primary">Escribir una idea</div>
     <div class="btn secondary">Abrir el tarro</div>
     <div class="timer"><span>⏱ Temporizador:</span><span class="chip">3 min</span><span class="chip">5 min</span><span class="chip">10 min</span></div>
@@ -101,7 +108,7 @@ h1{margin:28px 0 18px;font-size:128px;line-height:1;font-weight:800;letter-spaci
     <p class="wq">¿Qué podríamos mejorar?</p>
     <div class="area">Las reuniones de los lunes se alargan demasiado y nadie se atreve a decirlo.<i></i></div>
     <div class="row"><span class="wcount">76/280</span><span class="seal">Echar al tarro</span></div>
-    <p class="status">Guardando en el tarro… (unos 3 s, al azar para que nadie sepa cuándo lo hiciste)</p>
+    
   </div>
 </div>
 </body></html>

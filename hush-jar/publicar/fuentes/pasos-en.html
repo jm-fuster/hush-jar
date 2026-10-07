@@ -27,12 +27,21 @@ h2{margin:0;font-size:72px;line-height:1;font-weight:800;letter-spacing:-2px}
 .wcount{color:#6B6B66;font-size:12px}
 .seal{padding:8px 14px;border-radius:8px;background:#1D1D1F;color:#fff;font-weight:600}
 .status{margin:10px 0 0;font-size:13px;color:#1D1D1F}
+
+.jarbox{position:relative;width:100%;height:200px;display:flex;justify-content:center}
+.bubble{position:absolute;left:234px;top:4px;padding:7px 12px;border-radius:14px;background:#fff;border:1.5px solid #D8D4CA;font-size:15px;font-weight:700;white-space:nowrap}
+.bubble:after{content:'';position:absolute;left:12px;bottom:-6px;width:10px;height:10px;background:#fff;border-right:1.5px solid #D8D4CA;border-bottom:1.5px solid #D8D4CA;transform:rotate(45deg) skew(10deg,10deg)}
+.prog{width:200px;height:6px;border-radius:3px;background:#EEEAE0;overflow:hidden}
+.prog i{display:block;height:100%;border-radius:3px;background:#1D1D1F}
+.wrote{font-size:13px;color:#6B6B66}
 .w-wrap{width:380px;transform:scale(1.08);transform-origin:center}
 .window{box-shadow:0 12px 34px rgba(0,0,0,.14),0 0 0 1px rgba(0,0,0,.07)}
 .jar-wrap{display:flex;flex-direction:column;align-items:center}
 .jar-wrap svg{display:block;width:221px;height:260px}
-.count{margin-top:18px;font-size:24px;font-weight:600}
-.hint{margin-top:6px;font-size:17px;color:#6B6B66}
+.jar-in{position:relative}
+.bubble.big{left:170px;top:0;font-size:22px;padding:9px 16px;border-radius:18px}
+.prog.big{width:260px;height:8px;margin-top:22px}
+.hint{margin-top:10px;font-size:19px;color:#6B6B66}
 .sections{display:flex;gap:14px}
 .section{position:relative;width:152px;padding:44px 12px 14px;border-radius:12px;background:color-mix(in srgb,var(--c) 28%,#fff);border:1.5px solid color-mix(in srgb,var(--c) 70%,#8C8676);display:flex;flex-direction:column;gap:12px}
 .stag{position:absolute;left:10px;top:10px;padding:3px 9px;border-radius:6px;background:var(--c);font-size:13px;font-weight:600;white-space:nowrap}
@@ -49,12 +58,12 @@ h2{margin:0;font-size:72px;line-height:1;font-weight:800;letter-spacing:-2px}
     <p class="wq">What could we improve?</p>
     <div class="area">Our Monday meetings run too long, and nobody dares to say it.<i></i></div>
     <div class="row"><span class="wcount">61/280</span><span class="seal">Drop in the jar</span></div>
-    <p class="status">Dropping it in the jar… (about 3 s, random so no one knows when you did it)</p>
+    
   </div>
 </div></div></div>
-  <div class="caption"><b>1</b><div><h3>Write in private</h3><p>Everyone opens their own window. Each idea is saved after a random delay, so timing gives no one away.</p></div></div>
+  <div class="caption"><b>1</b><div><h3>Write in private</h3><p>Everyone opens their own window. You can edit or remove your ideas until the jar is opened.</p></div></div>
 </article><article class="step">
-  <div class="visual"><div class="jar-wrap"><svg width="180" height="212" viewBox="0 0 180 212" xmlns="http://www.w3.org/2000/svg">
+  <div class="visual"><div class="jar-wrap"><div class="jar-in"><svg width="180" height="212" viewBox="0 0 180 212" xmlns="http://www.w3.org/2000/svg">
 <defs>
 <linearGradient id="glassBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEF6F9"/><stop offset="1" stop-color="#D3E5ED"/></linearGradient>
 <linearGradient id="glassSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/><stop offset="0.35" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.8" stop-color="#6F97A8" stop-opacity="0"/><stop offset="1" stop-color="#6F97A8" stop-opacity="0.28"/></linearGradient>
@@ -80,8 +89,8 @@ h2{margin:0;font-size:72px;line-height:1;font-weight:800;letter-spacing:-2px}
 <rect x="-40" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-32" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-24" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-16" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-8" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="0" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="8" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="16" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="24" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="32" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="40" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/>
 <ellipse cx="0" cy="-6" rx="46" ry="7" fill="url(#lidTop)" stroke="#9C7A45" stroke-width="1"/>
 <ellipse cx="-10" cy="-8" rx="22" ry="2.5" fill="#FFFFFF" fill-opacity="0.35"/></g>
-</svg><div class="count">14 ideas · 6 people</div><div class="hint">No one can read them until the jar is opened.</div></div></div>
-  <div class="caption"><b>2</b><div><h3>The jar fills up</h3><p>The board only shows how many ideas and people there are. Nobody can read a thing.</p></div></div>
+</svg><span class="bubble big">14 ideas</span></div><div class="prog big"><i style="width:83%"></i></div><div class="hint">5 of 6 people have written</div></div></div>
+  <div class="caption"><b>2</b><div><h3>The jar fills up</h3><p>The board only shows how many ideas there are and how many people have written. Nobody can read a thing.</p></div></div>
 </article><article class="step">
   <div class="visual"><div class="sections"><div class="section" style="--c:#AFF4C6">
     <span class="stag">Went well</span>
@@ -93,6 +102,6 @@ h2{margin:0;font-size:72px;line-height:1;font-weight:800;letter-spacing:-2px}
     <span class="stag">To try</span>
     <div class="note" style="transform:rotate(-1.5deg)">Pair up on tricky bugs</div><div class="note" style="transform:rotate(1deg)">Async daily updates</div>
   </div></div></div>
-  <div class="caption"><b>3</b><div><h3>Open the jar</h3><p>Ideas land shuffled, as regular FigJam stickies with no names. Ready to group and vote on.</p></div></div>
+  <div class="caption"><b>3</b><div><h3>Open the jar</h3><p>Ideas land shuffled, as regular FigJam stickies with no names. Then everyone votes anonymously on what to discuss first.</p></div></div>
 </article></section>
 </body></html>

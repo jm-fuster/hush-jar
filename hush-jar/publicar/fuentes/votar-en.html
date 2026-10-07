@@ -1,0 +1,116 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden}
+body{position:relative;font-family:Inter,system-ui,sans-serif;color:#1D1D1F;background:#F5F1E8}
+.dots{position:absolute;inset:0;background-image:radial-gradient(#D9D2C3 1.6px,transparent 1.6px);background-size:28px 28px;opacity:.7}
+header{position:absolute;left:110px;top:84px;width:700px;display:flex;flex-direction:column;align-items:flex-start;gap:24px}
+.pill{padding:10px 20px;border-radius:999px;background:#1D1D1F;color:#fff;font-size:22px;font-weight:600}
+h2{margin:0;font-size:72px;line-height:1.02;font-weight:800;letter-spacing:-2px}
+.lead{margin:0;font-size:30px;line-height:1.35;color:#3A3834}
+
+.card{width:440px;padding:20px 24px;background:#fff;border:2px solid #E6E2D8;border-radius:28px;box-shadow:0 6px 20px rgba(0,0,0,.08);display:flex;flex-direction:column;align-items:center;gap:16px}
+.head{width:100%;height:20px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#6B6B66}
+.head .brand{font-weight:700;letter-spacing:.6px}
+.group{width:100%;display:flex;flex-direction:column;align-items:center}
+.title{font-size:20px;font-weight:700;text-align:center}
+.jar svg{display:block;width:170px;height:200px}
+.count{font-size:16px;font-weight:600}
+
+.jarbox{position:relative;width:100%;height:200px;display:flex;justify-content:center}
+.bubble{position:absolute;left:234px;top:4px;padding:7px 12px;border-radius:14px;background:#fff;border:1.5px solid #D8D4CA;font-size:15px;font-weight:700;white-space:nowrap}
+.bubble:after{content:'';position:absolute;left:12px;bottom:-6px;width:10px;height:10px;background:#fff;border-right:1.5px solid #D8D4CA;border-bottom:1.5px solid #D8D4CA;transform:rotate(45deg) skew(10deg,10deg)}
+.prog{width:200px;height:6px;border-radius:3px;background:#EEEAE0;overflow:hidden}
+.prog i{display:block;height:100%;border-radius:3px;background:#1D1D1F}
+.wrote{font-size:13px;color:#6B6B66}
+.hint{font-size:13px;line-height:19px;color:#6B6B66;text-align:center}
+.btn{width:100%;padding:12px 16px;border-radius:12px;text-align:center;font-size:15px;font-weight:600}
+.btn.primary{background:#1D1D1F;color:#fff;border:1px solid #1D1D1F}
+.btn.secondary{background:#fff;border:1px solid #D8D4CA}
+.timer{display:flex;gap:6px;align-items:center;font-size:12px;color:#6B6B66}
+.chip{padding:7px 11px;border-radius:999px;background:#F4F2EC;border:1px solid #E0DBCF;font-size:13px;color:#1D1D1F}
+.foot{font-size:12px;color:#6B6B66}
+
+.window{width:380px;background:#fff;border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,.20),0 0 0 1px rgba(0,0,0,.07);overflow:hidden}
+.bar{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 16px;border-bottom:1px solid #E9E9E9;font-size:11px;font-weight:600}
+.bar span:last-child{font-size:16px;font-weight:400;color:#6B6B66}
+.wbody{padding:18px 18px 16px;font-size:13px;line-height:1.5}
+.eyebrow{display:inline-flex;margin:0 0 10px;padding:3px 9px;border-radius:999px;background:#F6F6F2;color:#6B6B66;font-size:11px;font-weight:600}
+.wq{margin:0 0 12px;font-size:16px;line-height:1.35;font-weight:700}
+.area{height:100px;padding:10px 12px;border:1px solid #1D1D1F;border-radius:10px;background:#F6F6F2;font-size:14px;line-height:1.45}
+.area i{display:inline-block;width:1.5px;height:17px;margin-left:1px;background:#1D1D1F;vertical-align:-3px}
+.row{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.wcount{color:#6B6B66;font-size:12px}
+.seal{padding:8px 14px;border-radius:8px;background:#1D1D1F;color:#fff;font-weight:600}
+.status{margin:10px 0 0;font-size:13px;color:#1D1D1F}
+.dot{flex:none;width:10px;height:10px;border-radius:50%;border:1px solid rgba(0,0,0,.15)}
+.help{margin:-4px 0 10px;color:#6B6B66}
+.vnotes{display:flex;flex-direction:column;gap:6px}
+.vnote{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1.5px solid #E2E2DC;border-radius:8px;font-size:13px}
+.vnote.on{border-color:#1D1D1F;font-weight:600}
+.vnote:not(.on){opacity:.45}
+.vt{flex:1}
+.check{width:18px;height:18px;border-radius:50%;border:1.5px solid #E2E2DC;display:grid;place-items:center;font-size:11px}
+.vnote.on .check{background:#1D1D1F;border-color:#1D1D1F;color:#fff}
+.vote-win{position:absolute;left:110px;top:450px;transform:scale(1.22);transform-origin:top left}
+.on-right{position:absolute;left:1180px;top:80px;transform:scale(1.4);transform-origin:top left}
+.tags{display:flex;gap:14px;font-size:13px}
+.tag{display:flex;align-items:center;gap:6px}
+.label{width:100%;font-size:12px;font-weight:700;color:#6B6B66;letter-spacing:.4px}
+.top{width:100%;display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;background:#F4F2EC;font-size:13px}
+.top span{flex:1}
+.btns{width:100%;display:flex;gap:8px}
+.arrow{position:absolute;left:760px;top:640px;font-size:110px;font-weight:300;color:#1D1D1F}
+</style>
+<body>
+<div class="dots"></div>
+<header><span class="pill">New: voting</span><h2>Then vote, without names.</h2><p class="lead">Everyone gets 3 secret votes. The top ideas go first.</p></header>
+<div class="window vote-win">
+  <div class="bar"><span>Vote (3 votes each)</span><span>×</span></div>
+  <div class="wbody">
+    <p class="eyebrow">🔒 No one will know how you voted</p>
+    <p class="wq">Sprint 12 retro</p>
+    <p class="help">Pick the ideas you want to discuss first.</p>
+    <div class="vnotes"><div class="vnote on"><span class="dot" style="background:#FFC7C2"></span><span class="vt">Monday meetings run long</span><span class="check">✓</span></div><div class="vnote on"><span class="dot" style="background:#BDE3FF"></span><span class="vt">Pair up on tricky bugs</span><span class="check">✓</span></div><div class="vnote"><span class="dot" style="background:#AFF4C6"></span><span class="vt">Demo day went great</span><span class="check"></span></div><div class="vnote on"><span class="dot" style="background:#FFC7C2"></span><span class="vt">Unclear priorities</span><span class="check">✓</span></div><div class="vnote"><span class="dot" style="background:#BDE3FF"></span><span class="vt">Async daily updates</span><span class="check"></span></div><div class="vnote"><span class="dot" style="background:#AFF4C6"></span><span class="vt">Faster code reviews</span><span class="check"></span></div></div>
+    <div class="row"><span class="wcount">0 of 3 votes left</span><span class="seal">Save my votes</span></div>
+  </div>
+</div>
+<div class="arrow">→</div>
+<div class="card on-right">
+  <div class="head"><span class="brand">HUSH JAR</span><span>Round 1</span></div>
+  <div class="title">Sprint 12 retro</div>
+  <div class="jar" style="height:140px;display:flex;align-items:center"><div style="transform:scale(.7)"><svg width="180" height="212" viewBox="0 0 180 212" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="glassBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEF6F9"/><stop offset="1" stop-color="#D3E5ED"/></linearGradient>
+<linearGradient id="glassSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/><stop offset="0.35" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.8" stop-color="#6F97A8" stop-opacity="0"/><stop offset="1" stop-color="#6F97A8" stop-opacity="0.28"/></linearGradient>
+<linearGradient id="neck" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F4FAFC"/><stop offset="0.6" stop-color="#DCEAF0"/><stop offset="1" stop-color="#BCD3DD"/></linearGradient>
+<linearGradient id="lidSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8C6E3C"/><stop offset="0.22" stop-color="#C9A66B"/><stop offset="0.45" stop-color="#E2C590"/><stop offset="0.78" stop-color="#C9A66B"/><stop offset="1" stop-color="#8C6E3C"/></linearGradient>
+<linearGradient id="lidTop" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EDD4A2"/><stop offset="1" stop-color="#CFAE72"/></linearGradient>
+</defs>
+<ellipse cx="90" cy="201" rx="62" ry="8" fill="#000000" fill-opacity="0.08"/>
+<ellipse cx="90" cy="200" rx="46" ry="5" fill="#000000" fill-opacity="0.08"/>
+<rect x="24" y="44" width="132" height="152" rx="28" fill="url(#glassBack)"/>
+
+<rect x="24" y="44" width="132" height="152" rx="28" fill="url(#glassSide)"/>
+<rect x="33" y="60" width="9" height="112" rx="4.5" fill="#FFFFFF" fill-opacity="0.6"/>
+<rect x="46" y="64" width="3.5" height="46" rx="1.75" fill="#FFFFFF" fill-opacity="0.45"/>
+<path d="M40 66 Q43 52 58 48" fill="none" stroke="#FFFFFF" stroke-opacity="0.8" stroke-width="3" stroke-linecap="round"/>
+<ellipse cx="90" cy="188" rx="44" ry="4" fill="#FFFFFF" fill-opacity="0.3"/>
+<rect x="24" y="44" width="132" height="152" rx="28" fill="none" stroke="#8FB0BE" stroke-width="2"/>
+<rect x="52" y="30" width="76" height="18" fill="url(#neck)" stroke="#8FB0BE" stroke-width="1.5"/>
+<ellipse cx="90" cy="30" rx="38" ry="6" fill="#E6F1F5" stroke="#8FB0BE" stroke-width="1.5"/>
+<ellipse cx="90" cy="30" rx="36" ry="4.5" fill="#B5CFDA"/>
+<g transform="translate(136 34) rotate(28) scale(0.8)"><ellipse cx="0" cy="10" rx="46" ry="7" fill="#8C6E3C"/>
+<rect x="-46" y="-6" width="92" height="16" fill="url(#lidSide)"/>
+<rect x="-40" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-32" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-24" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-16" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="-8" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="0" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="8" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="16" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="24" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="32" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/><rect x="40" y="-4" width="1.2" height="13" fill="#7A5C2E" fill-opacity="0.22"/>
+<ellipse cx="0" cy="-6" rx="46" ry="7" fill="url(#lidTop)" stroke="#9C7A45" stroke-width="1"/>
+<ellipse cx="-10" cy="-8" rx="22" ry="2.5" fill="#FFFFFF" fill-opacity="0.35"/></g>
+</svg></div></div>
+  <div class="count">Jar opened: 12 ideas</div>
+  <div class="tags"><span class="tag"><span class="dot" style="background:#AFF4C6"></span>Went well <b>4</b></span><span class="tag"><span class="dot" style="background:#FFC7C2"></span>To improve <b>5</b></span><span class="tag"><span class="dot" style="background:#BDE3FF"></span>To try <b>3</b></span></div>
+  <div class="label">TOP VOTED</div>
+  <div class="top"><b>5 votes</b><span>Monday meetings run long</span></div><div class="top"><b>4 votes</b><span>Unclear priorities</span></div><div class="top"><b>3 votes</b><span>Pair up on tricky bugs</span></div>
+  <div class="btns"><div class="btn secondary">Show the ideas</div><div class="btn primary">New round</div></div>
+  <div class="foot">Led by Alex</div>
+</div>
+</body></html>
