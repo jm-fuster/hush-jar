@@ -52,7 +52,6 @@ Desde el tarro también puedes poner el temporizador de FigJam (3, 5 o 10 minuto
 ## Cómo protege el anonimato
 
 - Cada idea se guarda con una clave al azar y su columna. Sin nombre, sin identificador de usuario y sin hora.
-- La idea se guarda entre 2 y 5 segundos después del clic, al azar, para que el momento en que pulsas no te delate. Editar y retirar también esperan.
 - El tarro cuenta personas con una marca al azar que se queda en el ordenador de cada una, nunca con nombres.
 - Los papelitos del tarro no llevan el color de su columna, para que nadie adivine por el color qué ha escrito cada persona.
 - Si han escrito menos de 3 personas, el tarro avisa a quien dirige antes de abrirse: con tan poca gente es fácil adivinar quién escribió qué.
@@ -102,7 +101,7 @@ El manual de uso y de publicación está en [`hush-jar/README.md`](hush-jar/READ
 
 ## Estado
 
-La versión de la Comunidad es la 0.4. Este repositorio tiene la 0.5, que aún se está probando en FigJam: un contador «3 de 5 han escrito», columnas de retro con nombre propio y votación anónima después de abrir el tarro.
+Versión 0.5, ya en la Comunidad: votación anónima después de abrir el tarro, columnas de retro con nombre propio y un contador «3 de 5 han escrito».
 
 Lo que falta:
 

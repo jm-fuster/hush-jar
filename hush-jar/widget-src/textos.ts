@@ -46,6 +46,13 @@ export interface PanelStrings {
   editing: string
   edited: string
   removed: string
+  // votación ({n} votos que quedan de {max})
+  voteClosed: string
+  voteEyebrow: string
+  voteHelp: string
+  votesLeft: string
+  saveVotes: string
+  votesSaved: string
 }
 
 export interface Strings {
@@ -67,10 +74,8 @@ export interface Strings {
   start: (round: number) => string
   // tarro abierto a ideas
   back: string
-  noIdeasYet: string
   ideas: (n: number) => string
   people: (n: number) => string
-  nobodyReads: string
   write: string
   open: string
   timer: string
@@ -86,6 +91,18 @@ export interface Strings {
   showIdeas: string
   newRound: string
   ledBy: (name: string) => string
+  // contador y columnas
+  wroteOf: (writers: number, present: number) => string
+  labelColumns: string
+  // votación
+  startVote: string
+  vote: (max: number) => string
+  closeVote: string
+  voters: (n: number) => string
+  topIdeas: string
+  votesCount: (n: number) => string
+  noVotes: string
+  noNotesToVote: string
   // avisos
   onlyFacilitator: (name: string) => string
   pressStartFirst: string
@@ -130,6 +147,12 @@ const es: Strings = {
     editing: 'Editando tu idea. Nadie más la verá hasta que se abra el tarro.',
     edited: '✓ Cambios guardados.',
     removed: '✓ Idea retirada del tarro.',
+    voteClosed: 'La votación ya se ha cerrado.',
+    voteEyebrow: '🔒 Nadie sabrá qué has votado',
+    voteHelp: 'Elige las ideas que quieres tratar primero.',
+    votesLeft: 'Te quedan {n} de {max} votos',
+    saveVotes: 'Guardar mis votos',
+    votesSaved: '✓ Votos guardados. Puedes cambiarlos hasta que se cierre la votación.',
   },
   panelTitle: 'Tu idea',
   // Los tooltips de los widgets los coloca Figma y salen descuadrados: por eso el nombre completo.
@@ -156,10 +179,8 @@ const es: Strings = {
   hintSingle: 'Cada persona responderá en privado. Tú decides cuándo abrir el tarro y las ideas saldrán anónimas.',
   start: (round) => (round === 1 ? 'Empezar' : `Empezar la ronda ${round}`),
   back: '← Volver',
-  noIdeasYet: 'Todavía no hay ideas',
   ideas: (n) => (n === 1 ? '1 idea' : `${n} ideas`),
   people: (n) => (n === 1 ? '1 persona' : `${n} personas`),
-  nobodyReads: 'Nadie puede leerlas hasta que se abra el tarro.',
   write: 'Escribir una idea',
   open: 'Abrir el tarro',
   timer: '⏱ Temporizador:',
@@ -173,6 +194,16 @@ const es: Strings = {
   showIdeas: 'Ver las ideas',
   newRound: 'Nueva ronda',
   ledBy: (name) => `Dirige: ${name}`,
+  wroteOf: (w, p) => `${w} de ${p} ${p === 1 ? 'persona ha' : 'personas han'} escrito`,
+  labelColumns: 'COLUMNAS (PUEDES CAMBIARLES EL NOMBRE)',
+  startVote: 'Votar las ideas',
+  vote: (max) => `Votar (${max} votos por persona)`,
+  closeVote: 'Cerrar la votación',
+  voters: (n) => (n === 0 ? 'Todavía no ha votado nadie' : n === 1 ? 'Ha votado 1 persona' : `Han votado ${n} personas`),
+  topIdeas: 'LAS MÁS VOTADAS',
+  votesCount: (n) => (n === 1 ? '1 voto' : `${n} votos`),
+  noVotes: 'Nadie ha votado.',
+  noNotesToVote: 'No encuentro las notas del tarro en el tablero. ¿Las habéis borrado?',
   onlyFacilitator: (name) => `Solo ${name} puede hacer esto: es quien dirige la sesión.`,
   pressStartFirst: 'Primero alguien tiene que pulsar «Empezar».',
   whoAreYou: 'No he podido saber quién eres.',
@@ -215,6 +246,12 @@ const en: Strings = {
     editing: 'Editing your idea. No one else will see it until the jar is opened.',
     edited: '✓ Changes saved.',
     removed: '✓ Idea removed from the jar.',
+    voteClosed: 'Voting has already closed.',
+    voteEyebrow: '🔒 No one will know how you voted',
+    voteHelp: 'Pick the ideas you want to discuss first.',
+    votesLeft: '{n} of {max} votes left',
+    saveVotes: 'Save my votes',
+    votesSaved: '✓ Votes saved. You can change them until voting closes.',
   },
   panelTitle: 'Your idea',
   formats: { single: 'One question', retro: 'Retrospective', ssc: 'Start · Stop · Continue' },
@@ -240,10 +277,8 @@ const en: Strings = {
   hintSingle: 'Everyone answers privately. You decide when to open the jar, and the ideas come out anonymous.',
   start: (round) => (round === 1 ? 'Start' : `Start round ${round}`),
   back: '← Back',
-  noIdeasYet: 'No ideas yet',
   ideas: (n) => (n === 1 ? '1 idea' : `${n} ideas`),
   people: (n) => (n === 1 ? '1 person' : `${n} people`),
-  nobodyReads: 'No one can read them until the jar is opened.',
   write: 'Write an idea',
   open: 'Open the jar',
   timer: '⏱ Timer:',
@@ -257,6 +292,16 @@ const en: Strings = {
   showIdeas: 'Show the ideas',
   newRound: 'New round',
   ledBy: (name) => `Led by ${name}`,
+  wroteOf: (w, p) => `${w} of ${p} ${p === 1 ? 'person has' : 'people have'} written`,
+  labelColumns: 'COLUMNS (YOU CAN RENAME THEM)',
+  startVote: 'Vote on the ideas',
+  vote: (max) => `Vote (${max} votes each)`,
+  closeVote: 'Close voting',
+  voters: (n) => (n === 0 ? 'Nobody has voted yet' : n === 1 ? '1 person has voted' : `${n} people have voted`),
+  topIdeas: 'TOP VOTED',
+  votesCount: (n) => (n === 1 ? '1 vote' : `${n} votes`),
+  noVotes: 'Nobody voted.',
+  noNotesToVote: 'Can’t find the jar’s notes on the board. Were they deleted?',
   onlyFacilitator: (name) => `Only the facilitator, ${name}, can do this.`,
   pressStartFirst: 'Someone has to press “Start” first.',
   whoAreYou: 'Couldn’t tell who you are.',

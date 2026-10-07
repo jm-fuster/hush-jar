@@ -49,12 +49,29 @@
   .mine li { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border: 1px solid var(--border); border-radius: 8px; }
   .mine li.editing { border-color: var(--text); }
   .mine .text { flex: 1; min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  [hidden] { display: none !important; }
+  .help { margin: -4px 0 10px; color: var(--muted); }
+  .notes { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; max-height: 340px; overflow: auto; }
+  .note { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; text-align: left; }
+  .note[aria-pressed=&quot;true&quot;] { border-color: var(--text); font-weight: 600; }
+  .note .text { flex: 1; min-width: 0; }
+  .check { flex: none; width: 18px; height: 18px; border: 1.5px solid var(--border); border-radius: 50%; display: grid; place-items: center; font-size: 11px; }
+  .note[aria-pressed=&quot;true&quot;] .check { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .foot { display: flex; justify-content: flex-end; margin-top: 12px; }
 </style>
 </head>
 <body>
   <p class=&quot;eyebrow&quot; id=&quot;eyebrow&quot;></p>
   <h1 id=&quot;question&quot;></h1>
+  <section id=&quot;voteView&quot; hidden>
+    <p class=&quot;help&quot; id=&quot;voteHelp&quot;></p>
+    <ul class=&quot;notes&quot; id=&quot;notes&quot;></ul>
+    <div class=&quot;row&quot;>
+      <span class=&quot;count&quot; id=&quot;votesLeft&quot;></span>
+      <button id=&quot;saveVotes&quot; class=&quot;main&quot;></button>
+    </div>
+  </section>
+  <section id=&quot;writeView&quot;>
   <div class=&quot;cols&quot; id=&quot;cols&quot; role=&quot;group&quot;></div>
   <textarea id=&quot;idea&quot; maxlength=&quot;280&quot;></textarea>
   <div class=&quot;row&quot;>
@@ -64,6 +81,7 @@
       <button id=&quot;seal&quot; class=&quot;main&quot; disabled></button>
     </div>
   </div>
+  </section>
   <p id=&quot;status&quot;></p>
   <section class=&quot;mine&quot; id=&quot;mineBox&quot; hidden>
     <p class=&quot;mine-title&quot;><span id=&quot;mineTitle&quot;></span> · <span id=&quot;mineCount&quot;>0</span></p>
@@ -243,9 +261,84 @@
     $('idea').focus();
   }
 
+  // ---------- votar ----------
+  let notes = [];
+  let max = 3;
+  let chosen = [];
+
+  function renderVotes() {
+    const list = $('notes');
+    list.innerHTML = '';
+    for (const n of notes) {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'note';
+      const on = chosen.includes(n.id);
+      b.setAttribute('aria-pressed', String(on));
+      b.disabled = busy || (!on &amp;&amp; chosen.length >= max);
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = n.hex;
+      const text = document.createElement('span');
+      text.className = 'text';
+      text.textContent = n.t;
+      const check = document.createElement('span');
+      check.className = 'check';
+      check.textContent = on ? '✓' : '';
+      b.append(dot, text, check);
+      b.onclick = () => {
+        chosen = on ? chosen.filter((id) => id !== n.id) : chosen.concat(n.id);
+        setStatus('');
+        renderVotes();
+      };
+      li.appendChild(b);
+      list.appendChild(li);
+    }
+    $('votesLeft').textContent = tx('votesLeft', { n: max - chosen.length, max });
+    $('saveVotes').disabled = busy;
+    requestResize();
+  }
+
+  $('saveVotes').onclick = () => {
+    if (busy) return;
+    busy = true;
+    renderVotes();
+    send({ type: 'vote', ids: chosen });
+  };
+
   window.onmessage = (event) => {
     const m = event.data &amp;&amp; event.data.pluginMessage;
     if (!m) return;
+    if (m.type === 'init' &amp;&amp; m.mode === 'vote') {
+      T = m.text || T;
+      if (m.lang) document.documentElement.lang = m.lang;
+      applyTexts();
+      $('eyebrow').textContent = T.voteEyebrow;
+      $('voteHelp').textContent = T.voteHelp;
+      $('saveVotes').textContent = T.saveVotes;
+      $('question').textContent = m.question || '';
+      $('writeView').hidden = true;
+      $('voteView').hidden = false;
+      notes = m.notes || [];
+      max = m.max || 3;
+      chosen = m.chosen || [];
+      renderVotes();
+      document.body.classList.add('ready');
+      return;
+    }
+    if (m.type === 'voted') {
+      busy = false;
+      chosen = m.ids || chosen;
+      setStatus(T.votesSaved, 'ok');
+      renderVotes();
+    }
+    if (m.type === 'refused' &amp;&amp; notes.length) {
+      busy = false;
+      setStatus(m.text, 'warn');
+      renderVotes();
+      return;
+    }
     if (m.type === 'init') {
       T = m.text || T;
       if (m.lang) document.documentElement.lang = m.lang;
@@ -353,12 +446,29 @@
   .mine li { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border: 1px solid var(--border); border-radius: 8px; }
   .mine li.editing { border-color: var(--text); }
   .mine .text { flex: 1; min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  [hidden] { display: none !important; }
+  .help { margin: -4px 0 10px; color: var(--muted); }
+  .notes { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; max-height: 340px; overflow: auto; }
+  .note { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; text-align: left; }
+  .note[aria-pressed=&quot;true&quot;] { border-color: var(--text); font-weight: 600; }
+  .note .text { flex: 1; min-width: 0; }
+  .check { flex: none; width: 18px; height: 18px; border: 1.5px solid var(--border); border-radius: 50%; display: grid; place-items: center; font-size: 11px; }
+  .note[aria-pressed=&quot;true&quot;] .check { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .foot { display: flex; justify-content: flex-end; margin-top: 12px; }
 </style>
 </head>
 <body>
   <p class=&quot;eyebrow&quot; id=&quot;eyebrow&quot;></p>
   <h1 id=&quot;question&quot;></h1>
+  <section id=&quot;voteView&quot; hidden>
+    <p class=&quot;help&quot; id=&quot;voteHelp&quot;></p>
+    <ul class=&quot;notes&quot; id=&quot;notes&quot;></ul>
+    <div class=&quot;row&quot;>
+      <span class=&quot;count&quot; id=&quot;votesLeft&quot;></span>
+      <button id=&quot;saveVotes&quot; class=&quot;main&quot;></button>
+    </div>
+  </section>
+  <section id=&quot;writeView&quot;>
   <div class=&quot;cols&quot; id=&quot;cols&quot; role=&quot;group&quot;></div>
   <textarea id=&quot;idea&quot; maxlength=&quot;280&quot;></textarea>
   <div class=&quot;row&quot;>
@@ -368,6 +478,7 @@
       <button id=&quot;seal&quot; class=&quot;main&quot; disabled></button>
     </div>
   </div>
+  </section>
   <p id=&quot;status&quot;></p>
   <section class=&quot;mine&quot; id=&quot;mineBox&quot; hidden>
     <p class=&quot;mine-title&quot;><span id=&quot;mineTitle&quot;></span> · <span id=&quot;mineCount&quot;>0</span></p>
@@ -547,9 +658,84 @@
     $('idea').focus();
   }
 
+  // ---------- votar ----------
+  let notes = [];
+  let max = 3;
+  let chosen = [];
+
+  function renderVotes() {
+    const list = $('notes');
+    list.innerHTML = '';
+    for (const n of notes) {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'note';
+      const on = chosen.includes(n.id);
+      b.setAttribute('aria-pressed', String(on));
+      b.disabled = busy || (!on &amp;&amp; chosen.length >= max);
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = n.hex;
+      const text = document.createElement('span');
+      text.className = 'text';
+      text.textContent = n.t;
+      const check = document.createElement('span');
+      check.className = 'check';
+      check.textContent = on ? '✓' : '';
+      b.append(dot, text, check);
+      b.onclick = () => {
+        chosen = on ? chosen.filter((id) => id !== n.id) : chosen.concat(n.id);
+        setStatus('');
+        renderVotes();
+      };
+      li.appendChild(b);
+      list.appendChild(li);
+    }
+    $('votesLeft').textContent = tx('votesLeft', { n: max - chosen.length, max });
+    $('saveVotes').disabled = busy;
+    requestResize();
+  }
+
+  $('saveVotes').onclick = () => {
+    if (busy) return;
+    busy = true;
+    renderVotes();
+    send({ type: 'vote', ids: chosen });
+  };
+
   window.onmessage = (event) => {
     const m = event.data &amp;&amp; event.data.pluginMessage;
     if (!m) return;
+    if (m.type === 'init' &amp;&amp; m.mode === 'vote') {
+      T = m.text || T;
+      if (m.lang) document.documentElement.lang = m.lang;
+      applyTexts();
+      $('eyebrow').textContent = T.voteEyebrow;
+      $('voteHelp').textContent = T.voteHelp;
+      $('saveVotes').textContent = T.saveVotes;
+      $('question').textContent = m.question || '';
+      $('writeView').hidden = true;
+      $('voteView').hidden = false;
+      notes = m.notes || [];
+      max = m.max || 3;
+      chosen = m.chosen || [];
+      renderVotes();
+      document.body.classList.add('ready');
+      return;
+    }
+    if (m.type === 'voted') {
+      busy = false;
+      chosen = m.ids || chosen;
+      setStatus(T.votesSaved, 'ok');
+      renderVotes();
+    }
+    if (m.type === 'refused' &amp;&amp; notes.length) {
+      busy = false;
+      setStatus(m.text, 'warn');
+      renderVotes();
+      return;
+    }
     if (m.type === 'init') {
       T = m.text || T;
       if (m.lang) document.documentElement.lang = m.lang;
@@ -657,12 +843,29 @@
   .mine li { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border: 1px solid var(--border); border-radius: 8px; }
   .mine li.editing { border-color: var(--text); }
   .mine .text { flex: 1; min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  [hidden] { display: none !important; }
+  .help { margin: -4px 0 10px; color: var(--muted); }
+  .notes { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; max-height: 340px; overflow: auto; }
+  .note { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; text-align: left; }
+  .note[aria-pressed=&quot;true&quot;] { border-color: var(--text); font-weight: 600; }
+  .note .text { flex: 1; min-width: 0; }
+  .check { flex: none; width: 18px; height: 18px; border: 1.5px solid var(--border); border-radius: 50%; display: grid; place-items: center; font-size: 11px; }
+  .note[aria-pressed=&quot;true&quot;] .check { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .foot { display: flex; justify-content: flex-end; margin-top: 12px; }
 </style>
 </head>
 <body>
   <p class=&quot;eyebrow&quot; id=&quot;eyebrow&quot;></p>
   <h1 id=&quot;question&quot;></h1>
+  <section id=&quot;voteView&quot; hidden>
+    <p class=&quot;help&quot; id=&quot;voteHelp&quot;></p>
+    <ul class=&quot;notes&quot; id=&quot;notes&quot;></ul>
+    <div class=&quot;row&quot;>
+      <span class=&quot;count&quot; id=&quot;votesLeft&quot;></span>
+      <button id=&quot;saveVotes&quot; class=&quot;main&quot;></button>
+    </div>
+  </section>
+  <section id=&quot;writeView&quot;>
   <div class=&quot;cols&quot; id=&quot;cols&quot; role=&quot;group&quot;></div>
   <textarea id=&quot;idea&quot; maxlength=&quot;280&quot;></textarea>
   <div class=&quot;row&quot;>
@@ -672,6 +875,7 @@
       <button id=&quot;seal&quot; class=&quot;main&quot; disabled></button>
     </div>
   </div>
+  </section>
   <p id=&quot;status&quot;></p>
   <section class=&quot;mine&quot; id=&quot;mineBox&quot; hidden>
     <p class=&quot;mine-title&quot;><span id=&quot;mineTitle&quot;></span> · <span id=&quot;mineCount&quot;>0</span></p>
@@ -851,9 +1055,84 @@
     $('idea').focus();
   }
 
+  // ---------- votar ----------
+  let notes = [];
+  let max = 3;
+  let chosen = [];
+
+  function renderVotes() {
+    const list = $('notes');
+    list.innerHTML = '';
+    for (const n of notes) {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'note';
+      const on = chosen.includes(n.id);
+      b.setAttribute('aria-pressed', String(on));
+      b.disabled = busy || (!on &amp;&amp; chosen.length >= max);
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = n.hex;
+      const text = document.createElement('span');
+      text.className = 'text';
+      text.textContent = n.t;
+      const check = document.createElement('span');
+      check.className = 'check';
+      check.textContent = on ? '✓' : '';
+      b.append(dot, text, check);
+      b.onclick = () => {
+        chosen = on ? chosen.filter((id) => id !== n.id) : chosen.concat(n.id);
+        setStatus('');
+        renderVotes();
+      };
+      li.appendChild(b);
+      list.appendChild(li);
+    }
+    $('votesLeft').textContent = tx('votesLeft', { n: max - chosen.length, max });
+    $('saveVotes').disabled = busy;
+    requestResize();
+  }
+
+  $('saveVotes').onclick = () => {
+    if (busy) return;
+    busy = true;
+    renderVotes();
+    send({ type: 'vote', ids: chosen });
+  };
+
   window.onmessage = (event) => {
     const m = event.data &amp;&amp; event.data.pluginMessage;
     if (!m) return;
+    if (m.type === 'init' &amp;&amp; m.mode === 'vote') {
+      T = m.text || T;
+      if (m.lang) document.documentElement.lang = m.lang;
+      applyTexts();
+      $('eyebrow').textContent = T.voteEyebrow;
+      $('voteHelp').textContent = T.voteHelp;
+      $('saveVotes').textContent = T.saveVotes;
+      $('question').textContent = m.question || '';
+      $('writeView').hidden = true;
+      $('voteView').hidden = false;
+      notes = m.notes || [];
+      max = m.max || 3;
+      chosen = m.chosen || [];
+      renderVotes();
+      document.body.classList.add('ready');
+      return;
+    }
+    if (m.type === 'voted') {
+      busy = false;
+      chosen = m.ids || chosen;
+      setStatus(T.votesSaved, 'ok');
+      renderVotes();
+    }
+    if (m.type === 'refused' &amp;&amp; notes.length) {
+      busy = false;
+      setStatus(m.text, 'warn');
+      renderVotes();
+      return;
+    }
     if (m.type === 'init') {
       T = m.text || T;
       if (m.lang) document.documentElement.lang = m.lang;
@@ -911,9 +1190,9 @@
 </script>
 </body>
 </html>
-"></iframe><figcaption>English · guardando</figcaption></figure>
+"></iframe><figcaption>Español · votar</figcaption></figure>
 <script>
-const windows = [[{"type":"init","lang":"es","text":{"eyebrow":"🔒 Solo tú ves esta ventana","fallbackQuestion":"¿Qué quieres compartir?","column":"Columna","placeholder":"Escribe tu idea. Nadie sabrá que es tuya.","cancel":"Cancelar","seal":"Echar al tarro","saveChanges":"Guardar cambios","mine":"Tus ideas en este tarro (solo tú las ves)","edit":"Editar","remove":"Retirar","sure":"¿Seguro?","close":"Cerrar","saving":"Guardando en el tarro","savingEdit":"Guardando los cambios","removing":"Retirando la idea del tarro","delay":"… (unos {s} s, al azar para que nadie sepa cuándo lo hiciste)","saved":"✓ Guardada.","savedIn":"✓ Guardada en «{col}».","next":"Puedes escribir otra, cambiarla abajo o cerrar la ventana.","late":"El tarro ya se había abierto, así que saldrá en la próxima ronda.","editing":"Editando tu idea. Nadie más la verá hasta que se abra el tarro.","edited":"✓ Cambios guardados.","removed":"✓ Idea retirada del tarro."},"question":"¿Qué te preocupa?","columns":[{"id":"idea","label":"Ideas","hex":"#FFE8A3"}],"mine":[{"key":"aaaa1111aaaa","t":"Primera versión de mi idea","c":"idea"},{"key":"bbbb2222bbbb","t":"Idea que voy a retirar","c":"idea"}]},{"type":"saved","key":"vista1","t":"Probar a hacer la daily de pie","c":"idea","late":false}],[{"type":"init","lang":"en","text":{"eyebrow":"🔒 Only you can see this window","fallbackQuestion":"What would you like to share?","column":"Column","placeholder":"Write your idea. No one will know it’s yours.","cancel":"Cancel","seal":"Drop in the jar","saveChanges":"Save changes","mine":"Your ideas in this jar (only you can see them)","edit":"Edit","remove":"Remove","sure":"Sure?","close":"Close","saving":"Dropping it in the jar","savingEdit":"Saving your changes","removing":"Taking the idea out of the jar","delay":"… (about {s} s, random so no one knows when you did it)","saved":"✓ Saved.","savedIn":"✓ Saved in “{col}”.","next":"You can write another one, change it below or close this window.","late":"The jar had already been opened, so it will come out next round.","editing":"Editing your idea. No one else will see it until the jar is opened.","edited":"✓ Changes saved.","removed":"✓ Idea removed from the jar."},"question":"Start · Stop · Continue","columns":[{"id":"empezar","label":"Start doing","hex":"#AFF4C6"},{"id":"dejar","label":"Stop doing","hex":"#FFC7C2"},{"id":"seguir","label":"Continue doing","hex":"#BDE3FF"}],"mine":[{"key":"57e483a874ef18","t":"More pairing on tricky bugs","c":"empezar"}]},{"type":"saved","key":"vista2","t":"Pair on the release checklist","c":"seguir","late":false}],[{"type":"init","lang":"en","text":{"eyebrow":"🔒 Only you can see this window","fallbackQuestion":"What would you like to share?","column":"Column","placeholder":"Write your idea. No one will know it’s yours.","cancel":"Cancel","seal":"Drop in the jar","saveChanges":"Save changes","mine":"Your ideas in this jar (only you can see them)","edit":"Edit","remove":"Remove","sure":"Sure?","close":"Close","saving":"Dropping it in the jar","savingEdit":"Saving your changes","removing":"Taking the idea out of the jar","delay":"… (about {s} s, random so no one knows when you did it)","saved":"✓ Saved.","savedIn":"✓ Saved in “{col}”.","next":"You can write another one, change it below or close this window.","late":"The jar had already been opened, so it will come out next round.","editing":"Editing your idea. No one else will see it until the jar is opened.","edited":"✓ Changes saved.","removed":"✓ Idea removed from the jar."},"question":"Start · Stop · Continue","columns":[{"id":"empezar","label":"Start doing","hex":"#AFF4C6"},{"id":"dejar","label":"Stop doing","hex":"#FFC7C2"},{"id":"seguir","label":"Continue doing","hex":"#BDE3FF"}],"mine":[{"key":"57e483a874ef18","t":"More pairing on tricky bugs","c":"empezar"}]},{"type":"sealing","action":"seal","seconds":3}]];
+const windows = [[{"type":"init","lang":"es","text":{"eyebrow":"🔒 Solo tú ves esta ventana","fallbackQuestion":"¿Qué quieres compartir?","column":"Columna","placeholder":"Escribe tu idea. Nadie sabrá que es tuya.","cancel":"Cancelar","seal":"Echar al tarro","saveChanges":"Guardar cambios","mine":"Tus ideas en este tarro (solo tú las ves)","edit":"Editar","remove":"Retirar","sure":"¿Seguro?","close":"Cerrar","saving":"Guardando en el tarro","savingEdit":"Guardando los cambios","removing":"Retirando la idea del tarro","delay":"… (unos {s} s, al azar para que nadie sepa cuándo lo hiciste)","saved":"✓ Guardada.","savedIn":"✓ Guardada en «{col}».","next":"Puedes escribir otra, cambiarla abajo o cerrar la ventana.","late":"El tarro ya se había abierto, así que saldrá en la próxima ronda.","editing":"Editando tu idea. Nadie más la verá hasta que se abra el tarro.","edited":"✓ Cambios guardados.","removed":"✓ Idea retirada del tarro.","voteClosed":"La votación ya se ha cerrado.","voteEyebrow":"🔒 Nadie sabrá qué has votado","voteHelp":"Elige las ideas que quieres tratar primero.","votesLeft":"Te quedan {n} de {max} votos","saveVotes":"Guardar mis votos","votesSaved":"✓ Votos guardados. Puedes cambiarlos hasta que se cierre la votación."},"question":"¿Qué te preocupa?","columns":[{"id":"idea","label":"Ideas","hex":"#FFE8A3"}],"mine":[{"key":"aaaa1111aaaa","t":"Primera versión de mi idea","c":"idea"},{"key":"bbbb2222bbbb","t":"Idea que voy a retirar","c":"idea"}]},{"type":"saved","key":"vista1","t":"Probar a hacer la daily de pie","c":"idea","late":false}],[{"type":"init","lang":"en","text":{"eyebrow":"🔒 Only you can see this window","fallbackQuestion":"What would you like to share?","column":"Column","placeholder":"Write your idea. No one will know it’s yours.","cancel":"Cancel","seal":"Drop in the jar","saveChanges":"Save changes","mine":"Your ideas in this jar (only you can see them)","edit":"Edit","remove":"Remove","sure":"Sure?","close":"Close","saving":"Dropping it in the jar","savingEdit":"Saving your changes","removing":"Taking the idea out of the jar","delay":"… (about {s} s, random so no one knows when you did it)","saved":"✓ Saved.","savedIn":"✓ Saved in “{col}”.","next":"You can write another one, change it below or close this window.","late":"The jar had already been opened, so it will come out next round.","editing":"Editing your idea. No one else will see it until the jar is opened.","edited":"✓ Changes saved.","removed":"✓ Idea removed from the jar.","voteClosed":"Voting has already closed.","voteEyebrow":"🔒 No one will know how you voted","voteHelp":"Pick the ideas you want to discuss first.","votesLeft":"{n} of {max} votes left","saveVotes":"Save my votes","votesSaved":"✓ Votes saved. You can change them until voting closes."},"question":"Start · Stop · Continue","columns":[{"id":"empezar","label":"Start doing","hex":"#AFF4C6"},{"id":"dejar","label":"Stop doing","hex":"#FFC7C2"},{"id":"seguir","label":"Continue doing","hex":"#BDE3FF"}],"mine":[{"key":"5c09fbc63f0098","t":"More pairing on tricky bugs","c":"empezar"}]},{"type":"saved","key":"vista2","t":"Pair on the release checklist","c":"seguir","late":false}],[{"type":"init","mode":"vote","lang":"es","text":{"eyebrow":"🔒 Solo tú ves esta ventana","fallbackQuestion":"¿Qué quieres compartir?","column":"Columna","placeholder":"Escribe tu idea. Nadie sabrá que es tuya.","cancel":"Cancelar","seal":"Echar al tarro","saveChanges":"Guardar cambios","mine":"Tus ideas en este tarro (solo tú las ves)","edit":"Editar","remove":"Retirar","sure":"¿Seguro?","close":"Cerrar","saving":"Guardando en el tarro","savingEdit":"Guardando los cambios","removing":"Retirando la idea del tarro","delay":"… (unos {s} s, al azar para que nadie sepa cuándo lo hiciste)","saved":"✓ Guardada.","savedIn":"✓ Guardada en «{col}».","next":"Puedes escribir otra, cambiarla abajo o cerrar la ventana.","late":"El tarro ya se había abierto, así que saldrá en la próxima ronda.","editing":"Editando tu idea. Nadie más la verá hasta que se abra el tarro.","edited":"✓ Cambios guardados.","removed":"✓ Idea retirada del tarro.","voteClosed":"La votación ya se ha cerrado.","voteEyebrow":"🔒 Nadie sabrá qué has votado","voteHelp":"Elige las ideas que quieres tratar primero.","votesLeft":"Te quedan {n} de {max} votos","saveVotes":"Guardar mis votos","votesSaved":"✓ Votos guardados. Puedes cambiarlos hasta que se cierre la votación."},"question":"Retrospectiva","notes":[{"id":"9:129","t":"Buen ambiente","hex":"#AFF4C6"},{"id":"9:130","t":"Las demos","hex":"#AFF4C6"},{"id":"9:132","t":"Demasiadas reuniones","hex":"#FFC7C2"},{"id":"9:134","t":"Más pairing","hex":"#BDE3FF"}],"max":3,"chosen":["9:129","9:130"]},{"type":"voted","ids":["9:129","9:130"]}]];
 windows.forEach((messages, i) => {
   const frame = document.getElementById('v' + i);
   frame.addEventListener('load', () => { for (const m of messages) frame.contentWindow.postMessage({ pluginMessage: m }, '*'); });

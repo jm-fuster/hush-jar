@@ -109,7 +109,13 @@ ${lid}
       late: "El tarro ya se hab\xEDa abierto, as\xED que saldr\xE1 en la pr\xF3xima ronda.",
       editing: "Editando tu idea. Nadie m\xE1s la ver\xE1 hasta que se abra el tarro.",
       edited: "\u2713 Cambios guardados.",
-      removed: "\u2713 Idea retirada del tarro."
+      removed: "\u2713 Idea retirada del tarro.",
+      voteClosed: "La votaci\xF3n ya se ha cerrado.",
+      voteEyebrow: "\u{1F512} Nadie sabr\xE1 qu\xE9 has votado",
+      voteHelp: "Elige las ideas que quieres tratar primero.",
+      votesLeft: "Te quedan {n} de {max} votos",
+      saveVotes: "Guardar mis votos",
+      votesSaved: "\u2713 Votos guardados. Puedes cambiarlos hasta que se cierre la votaci\xF3n."
     },
     panelTitle: "Tu idea",
     // Los tooltips de los widgets los coloca Figma y salen descuadrados: por eso el nombre completo.
@@ -135,10 +141,8 @@ ${lid}
     hintSingle: "Cada persona responder\xE1 en privado. T\xFA decides cu\xE1ndo abrir el tarro y las ideas saldr\xE1n an\xF3nimas.",
     start: (round) => round === 1 ? "Empezar" : `Empezar la ronda ${round}`,
     back: "\u2190 Volver",
-    noIdeasYet: "Todav\xEDa no hay ideas",
     ideas: (n) => n === 1 ? "1 idea" : `${n} ideas`,
     people: (n) => n === 1 ? "1 persona" : `${n} personas`,
-    nobodyReads: "Nadie puede leerlas hasta que se abra el tarro.",
     write: "Escribir una idea",
     open: "Abrir el tarro",
     timer: "\u23F1 Temporizador:",
@@ -152,6 +156,16 @@ ${lid}
     showIdeas: "Ver las ideas",
     newRound: "Nueva ronda",
     ledBy: (name) => `Dirige: ${name}`,
+    wroteOf: (w, p) => `${w} de ${p} ${p === 1 ? "persona ha" : "personas han"} escrito`,
+    labelColumns: "COLUMNAS (PUEDES CAMBIARLES EL NOMBRE)",
+    startVote: "Votar las ideas",
+    vote: (max) => `Votar (${max} votos por persona)`,
+    closeVote: "Cerrar la votaci\xF3n",
+    voters: (n) => n === 0 ? "Todav\xEDa no ha votado nadie" : n === 1 ? "Ha votado 1 persona" : `Han votado ${n} personas`,
+    topIdeas: "LAS M\xC1S VOTADAS",
+    votesCount: (n) => n === 1 ? "1 voto" : `${n} votos`,
+    noVotes: "Nadie ha votado.",
+    noNotesToVote: "No encuentro las notas del tarro en el tablero. \xBFLas hab\xE9is borrado?",
     onlyFacilitator: (name) => `Solo ${name} puede hacer esto: es quien dirige la sesi\xF3n.`,
     pressStartFirst: "Primero alguien tiene que pulsar \xABEmpezar\xBB.",
     whoAreYou: "No he podido saber qui\xE9n eres.",
@@ -192,7 +206,13 @@ ${lid}
       late: "The jar had already been opened, so it will come out next round.",
       editing: "Editing your idea. No one else will see it until the jar is opened.",
       edited: "\u2713 Changes saved.",
-      removed: "\u2713 Idea removed from the jar."
+      removed: "\u2713 Idea removed from the jar.",
+      voteClosed: "Voting has already closed.",
+      voteEyebrow: "\u{1F512} No one will know how you voted",
+      voteHelp: "Pick the ideas you want to discuss first.",
+      votesLeft: "{n} of {max} votes left",
+      saveVotes: "Save my votes",
+      votesSaved: "\u2713 Votes saved. You can change them until voting closes."
     },
     panelTitle: "Your idea",
     formats: { single: "One question", retro: "Retrospective", ssc: "Start \xB7 Stop \xB7 Continue" },
@@ -217,10 +237,8 @@ ${lid}
     hintSingle: "Everyone answers privately. You decide when to open the jar, and the ideas come out anonymous.",
     start: (round) => round === 1 ? "Start" : `Start round ${round}`,
     back: "\u2190 Back",
-    noIdeasYet: "No ideas yet",
     ideas: (n) => n === 1 ? "1 idea" : `${n} ideas`,
     people: (n) => n === 1 ? "1 person" : `${n} people`,
-    nobodyReads: "No one can read them until the jar is opened.",
     write: "Write an idea",
     open: "Open the jar",
     timer: "\u23F1 Timer:",
@@ -234,6 +252,16 @@ ${lid}
     showIdeas: "Show the ideas",
     newRound: "New round",
     ledBy: (name) => `Led by ${name}`,
+    wroteOf: (w, p) => `${w} of ${p} ${p === 1 ? "person has" : "people have"} written`,
+    labelColumns: "COLUMNS (YOU CAN RENAME THEM)",
+    startVote: "Vote on the ideas",
+    vote: (max) => `Vote (${max} votes each)`,
+    closeVote: "Close voting",
+    voters: (n) => n === 0 ? "Nobody has voted yet" : n === 1 ? "1 person has voted" : `${n} people have voted`,
+    topIdeas: "TOP VOTED",
+    votesCount: (n) => n === 1 ? "1 vote" : `${n} votes`,
+    noVotes: "Nobody voted.",
+    noNotesToVote: "Can\u2019t find the jar\u2019s notes on the board. Were they deleted?",
     onlyFacilitator: (name) => `Only the facilitator, ${name}, can do this.`,
     pressStartFirst: "Someone has to press \u201CStart\u201D first.",
     whoAreYou: "Couldn\u2019t tell who you are.",
@@ -289,11 +317,15 @@ ${lid}
   var INK = "#1D1D1F";
   var MUTED = "#6B6B66";
   var LANG_KEY = "hushjar:idioma";
-  function formatsIn(t) {
+  var MAX_VOTES = 3;
+  var MAX_LABEL = 40;
+  var STICKY_STEP = 260;
+  var BUBBLE_TAIL = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="10" viewBox="0 0 14 10"><path d="M1 0.5 L2 9 L10 0.5" fill="#FFFFFF" stroke="#D8D4CA" stroke-width="1.5" stroke-linejoin="round"/><rect x="1.8" y="0" width="7.4" height="1.8" fill="#FFFFFF"/></svg>';
+  function formatsIn(t, labels) {
     return FORMAT_DEFS.map((f) => ({
       id: f.id,
       name: t.formats[f.id],
-      columns: f.columns.map((c) => __spreadProps(__spreadValues({}, c), { label: t.columns[c.id] }))
+      columns: f.columns.map((c) => __spreadProps(__spreadValues({}, c), { label: labels[`${f.id}:${c.id}`] || t.columns[c.id] }))
     }));
   }
   function formatById(formats, id) {
@@ -390,9 +422,13 @@ ${lid}
     const [storedLang, setLang] = useSyncedState("lang", "");
     const slips = useSyncedMap("slips");
     const people = useSyncedMap("people");
+    const [labels, setLabels] = useSyncedState("labels", {});
+    const [present, setPresent] = useSyncedState("present", 0);
+    const [vote, setVote] = useSyncedState("vote", null);
+    const votes = useSyncedMap("votes");
     const lang = isLang(storedLang) ? storedLang : DEFAULT_LANG;
     const t = strings(lang);
-    const formats = formatsIn(t);
+    const formats = formatsIn(t, labels);
     const format = formatById(formats, formatId);
     const multi = format.columns.length > 1;
     const title = question || format.name;
@@ -419,6 +455,13 @@ ${lid}
       figma.notify(facilitator ? t.onlyFacilitator(facilitator.name) : t.pressStartFirst);
       return false;
     }
+    function notePresent() {
+      try {
+        const n = figma.activeUsers.length;
+        if (n > 0 && n !== present) setPresent(n);
+      } catch (e) {
+      }
+    }
     function canPrepare() {
       return !facilitator || onlyFacilitator();
     }
@@ -434,6 +477,15 @@ ${lid}
       if (!canPrepare()) return;
       setFormatId(id);
     }
+    function renameColumn(id, text) {
+      if (!canPrepare()) return;
+      const key = `${formatId}:${id}`;
+      const name = text.trim().slice(0, MAX_LABEL);
+      const next = __spreadValues({}, labels);
+      if (!name || name === t.columns[id]) delete next[key];
+      else next[key] = name;
+      setLabels(next);
+    }
     async function start() {
       const current = me();
       if (!current) {
@@ -446,6 +498,7 @@ ${lid}
         return;
       }
       if (!facilitator) setFacilitator(current);
+      notePresent();
       setPhase("open");
     }
     async function goBack() {
@@ -459,6 +512,7 @@ ${lid}
     async function writeIdea() {
       const tokenKey = `hushjar:${nodeId}:persona`;
       const mineKey = `hushjar:${nodeId}:mias`;
+      notePresent();
       let token;
       let mineKeys = [];
       try {
@@ -500,8 +554,7 @@ ${lid}
         };
         const onClose = () => flush();
         figma.on("close", onClose);
-        const later = (action, run) => {
-          const delay = 2e3 + Math.floor(Math.random() * 3e3);
+        const later = (run) => {
           const timer = setTimeout(async () => {
             const node = await figma.getNodeByIdAsync(nodeId);
             const state = node && node.type === "WIDGET" ? node.widgetSyncedState : {};
@@ -509,9 +562,8 @@ ${lid}
             const late = state.phase === "revealed" || roundNow !== openedIn;
             pending = null;
             run(true, late);
-          }, delay);
+          }, 0);
           pending = { run: (live) => run(live, false), timer };
-          figma.ui.postMessage({ type: "sealing", action, seconds: Math.round(delay / 1e3) });
         };
         const alreadyOut = (key) => {
           mineKeys = mineKeys.filter((k) => k !== key);
@@ -544,7 +596,7 @@ ${lid}
           const c = columnOf({ t: text, c: String(msg.c || "") }, format);
           if (msg.type === "seal") {
             if (!text || !key) return;
-            later("seal", (live, late) => {
+            later((live, late) => {
               slips.set(key, { t: text, c });
               if (token) people.set(`${roundNow}:${token}`, 1);
               if (live) figma.ui.postMessage({ type: "saved", key, t: text, c, late });
@@ -555,7 +607,7 @@ ${lid}
           if (msg.type === "edit") {
             if (!text || mineKeys.indexOf(key) < 0) return;
             if (!slips.has(key)) return alreadyOut(key);
-            later("edit", (live, late) => {
+            later((live, late) => {
               if (late || !slips.has(key)) {
                 if (live) alreadyOut(key);
                 return;
@@ -567,7 +619,7 @@ ${lid}
           if (msg.type === "retract") {
             if (mineKeys.indexOf(key) < 0) return;
             if (!slips.has(key)) return alreadyOut(key);
-            later("retract", (live, late) => {
+            later((live, late) => {
               if (late || !slips.has(key)) {
                 if (live) alreadyOut(key);
                 return;
@@ -611,6 +663,7 @@ ${lid}
     }
     async function openJar(force) {
       if (!onlyFacilitator()) return;
+      notePresent();
       const entries = slips.entries();
       if (!entries.length) {
         figma.notify(t.emptyJar);
@@ -669,21 +722,121 @@ ${lid}
       if (onlyFacilitator()) setPhase("open");
     }
     async function showIdeas() {
-      const ids = reveal ? reveal.sectionIds || (reveal.sectionId ? [reveal.sectionId] : []) : [];
-      const found = [];
-      for (const id of ids) {
-        const node = await figma.getNodeByIdAsync(id);
-        if (node && node.type === "SECTION") found.push(node);
-      }
+      const found = await revealedSections();
       if (!found.length) {
         figma.notify(t.sectionsMissing);
         return;
       }
       figma.viewport.scrollAndZoomIntoView(found);
     }
+    async function revealedSections() {
+      const ids = reveal ? reveal.sectionIds || (reveal.sectionId ? [reveal.sectionId] : []) : [];
+      const found = [];
+      for (const id of ids) {
+        const node = await figma.getNodeByIdAsync(id);
+        if (node && node.type === "SECTION") found.push(node);
+      }
+      return found;
+    }
+    async function revealedNotes() {
+      const notes = [];
+      const sections = await revealedSections();
+      sections.forEach((section, i) => {
+        const hex = (format.columns[i] || format.columns[0]).hex;
+        for (const child of section.children) {
+          if (child.type === "STICKY" && child.text.characters.trim()) notes.push({ id: child.id, t: child.text.characters, hex });
+        }
+      });
+      return notes;
+    }
+    async function startVote() {
+      if (!onlyFacilitator()) return;
+      if (!(await revealedNotes()).length) {
+        figma.notify(t.noNotesToVote);
+        return;
+      }
+      for (const key of votes.keys()) votes.delete(key);
+      setVote({ open: true });
+    }
+    async function castVotes() {
+      const notes = await revealedNotes();
+      if (!notes.length) {
+        figma.notify(t.noNotesToVote);
+        return;
+      }
+      const max = Math.min(MAX_VOTES, notes.length);
+      const tokenKey = `hushjar:${nodeId}:persona`;
+      let token;
+      try {
+        token = await figma.clientStorage.getAsync(tokenKey);
+      } catch (e) {
+      }
+      const chosen = token ? (votes.get(token) || []).filter((id) => notes.some((n) => n.id === id)) : [];
+      figma.showUI(__html__, { width: 380, height: 420, title: t.vote(max), themeColors: true });
+      figma.ui.postMessage({ type: "init", mode: "vote", lang, text: t.panel, question: title, notes, max, chosen });
+      await new Promise((resolve) => {
+        const done = () => {
+          figma.off("close", done);
+          resolve();
+        };
+        figma.on("close", done);
+        figma.ui.onmessage = async (msg) => {
+          if (!msg) return;
+          if (msg.type === "close") return done();
+          if (msg.type === "resize") {
+            figma.ui.resize(380, Math.max(300, Math.min(640, Math.round(Number(msg.height) || 0))));
+            return;
+          }
+          if (msg.type === "ready" && !token) {
+            token = String(msg.token);
+            try {
+              await figma.clientStorage.setAsync(tokenKey, token);
+            } catch (e) {
+            }
+            return;
+          }
+          if (msg.type === "vote" && token) {
+            const node = await figma.getNodeByIdAsync(nodeId);
+            const state = node && node.type === "WIDGET" ? node.widgetSyncedState : {};
+            if (!state.vote || !state.vote.open) {
+              figma.ui.postMessage({ type: "refused", text: t.panel.voteClosed });
+              return;
+            }
+            const ids = Array.isArray(msg.ids) ? msg.ids.map(String) : [];
+            const valid = ids.filter((id, i) => ids.indexOf(id) === i && notes.some((n) => n.id === id)).slice(0, max);
+            votes.set(token, valid);
+            figma.ui.postMessage({ type: "voted", ids: valid });
+          }
+        };
+      });
+    }
+    async function closeVote() {
+      if (!onlyFacilitator()) return;
+      const tally = {};
+      for (const ids of votes.values()) for (const id of ids) tally[id] = (tally[id] || 0) + 1;
+      const notes = await revealedNotes();
+      for (const section of await revealedSections()) {
+        const stickies = section.children.filter((c) => c.type === "STICKY");
+        const perRow = Math.max(1, Math.round((section.width - 60) / STICKY_STEP));
+        stickies.map((s, i) => ({ s, i, n: tally[s.id] || 0 })).sort((a, b) => b.n - a.n || a.i - b.i).forEach(({ s }, i) => {
+          s.x = 40 + i % perRow * STICKY_STEP;
+          s.y = 70 + Math.floor(i / perRow) * STICKY_STEP;
+        });
+      }
+      const results = notes.map((note) => ({ id: note.id, t: note.t, n: tally[note.id] || 0 })).filter((r) => r.n > 0).sort((a, b) => b.n - a.n).slice(0, 3);
+      for (const key of votes.keys()) votes.delete(key);
+      setVote({ open: false, results });
+    }
+    async function showNote(id) {
+      const node = await figma.getNodeByIdAsync(id);
+      if (node && node.type === "STICKY") figma.viewport.scrollAndZoomIntoView([node]);
+      else figma.notify(t.noNotesToVote);
+    }
     async function newRound() {
       if (!onlyFacilitator()) return;
       for (const key of people.keys()) people.delete(key);
+      for (const key of votes.keys()) votes.delete(key);
+      setVote(null);
       setRound(round + 1);
       setReveal(null);
       setQuestion("");
@@ -722,6 +875,10 @@ ${lid}
           if (!onlyFacilitator()) return;
           for (const key of slips.keys()) slips.delete(key);
           for (const key of people.keys()) people.delete(key);
+          for (const key of votes.keys()) votes.delete(key);
+          setVote(null);
+          setLabels({});
+          setPresent(0);
           setReveal(null);
           setRound(1);
           setQuestion("");
@@ -747,7 +904,24 @@ ${lid}
         effect: { type: "drop-shadow", color: { r: 0, g: 0, b: 0, a: 0.08 }, offset: { x: 0, y: 6 }, blur: 20 }
       },
       /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "horizontal", width: "fill-parent", height: 20, verticalAlignItems: "center", spacing: "auto" }, canGoBack ? /* @__PURE__ */ figma.widget.h(AutoLayout, { padding: { vertical: 2 }, onClick: goBack }, /* @__PURE__ */ figma.widget.h(Text, { fontSize: 13, fontWeight: 600, fill: MUTED, hoverStyle: { fill: INK } }, t.back)) : /* @__PURE__ */ figma.widget.h(Text, { fontSize: 12, fontWeight: 700, fill: MUTED, letterSpacing: 0.6 }, "HUSH JAR"), round > 1 || phase !== "setup" ? /* @__PURE__ */ figma.widget.h(Text, { fontSize: 12, fill: MUTED }, t.round(round)) : null),
-      phase === "setup" ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 18, horizontalAlignItems: "center" }, /* @__PURE__ */ figma.widget.h(SVG, { src: jarSvg(ideas, false), width: 92, height: 108 }), /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 10 }, /* @__PURE__ */ figma.widget.h(Tabs, { items: formats.map((f) => ({ id: f.id, label: f.name })), active: formatId, onSelect: (id) => chooseFormat(id) }), multi ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "horizontal", width: "fill-parent", spacing: 12, wrap: true }, format.columns.map((c) => /* @__PURE__ */ figma.widget.h(ColumnTag, { key: c.id, column: c }))) : null), /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 8 }, /* @__PURE__ */ figma.widget.h(Label, null, multi ? t.labelTitle : t.labelQuestion(round)), /* @__PURE__ */ figma.widget.h(
+      phase === "setup" ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 18, horizontalAlignItems: "center" }, /* @__PURE__ */ figma.widget.h(SVG, { src: jarSvg(ideas, false), width: 92, height: 108 }), /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 10 }, /* @__PURE__ */ figma.widget.h(Tabs, { items: formats.map((f) => ({ id: f.id, label: f.name })), active: formatId, onSelect: (id) => chooseFormat(id) })), multi ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 8 }, /* @__PURE__ */ figma.widget.h(Label, null, t.labelColumns), format.columns.map((c) => /* @__PURE__ */ figma.widget.h(AutoLayout, { key: c.id, direction: "horizontal", width: "fill-parent", spacing: 10, verticalAlignItems: "center" }, /* @__PURE__ */ figma.widget.h(AutoLayout, { width: 14, height: 14, cornerRadius: 7, fill: c.hex, stroke: "#C9C4B8" }), /* @__PURE__ */ figma.widget.h(
+        Input,
+        {
+          value: c.label,
+          placeholder: t.columns[c.id],
+          onTextEditEnd: (e) => renameColumn(c.id, e.characters),
+          fontSize: 14,
+          fill: INK,
+          width: "fill-parent",
+          inputFrameProps: {
+            fill: "#FFFFFF",
+            stroke: "#D8D4CA",
+            cornerRadius: 8,
+            padding: { vertical: 8, horizontal: 10 },
+            hoverStyle: { stroke: INK }
+          }
+        }
+      )))) : null, /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 8 }, /* @__PURE__ */ figma.widget.h(Label, null, multi ? t.labelTitle : t.labelQuestion(round)), /* @__PURE__ */ figma.widget.h(
         Input,
         {
           value: question,
@@ -768,10 +942,29 @@ ${lid}
             hoverStyle: { stroke: INK }
           }
         }
-      )), multi ? null : /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 8 }, /* @__PURE__ */ figma.widget.h(Text, { fontSize: 12, fill: MUTED }, t.orPick), /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "horizontal", width: "fill-parent", spacing: 6, wrap: true }, t.suggestions.map((s) => /* @__PURE__ */ figma.widget.h(Chip, { key: s, label: s, active: question === s, onClick: () => chooseQuestion(s) })))), /* @__PURE__ */ figma.widget.h(Hint, null, ideas > 0 ? t.lateInJar(ideas) : multi ? t.hintColumns : t.hintSingle), /* @__PURE__ */ figma.widget.h(Button, { label: t.start(round), onClick: start })) : /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 14, horizontalAlignItems: "center" }, /* @__PURE__ */ figma.widget.h(Text, { fontSize: 20, fontWeight: 700, fill: INK, width: "fill-parent", horizontalAlignText: "center" }, title), /* @__PURE__ */ figma.widget.h(SVG, { src: jarSvg(ideas, phase === "revealed"), width: 170, height: 200 }), multi && !revealedCounts ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "horizontal", spacing: 12, wrap: true, horizontalAlignItems: "center" }, format.columns.map((c) => /* @__PURE__ */ figma.widget.h(ColumnTag, { key: c.id, column: c }))) : null),
-      phase === "open" ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 12, horizontalAlignItems: "center" }, /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", spacing: 4, horizontalAlignItems: "center", width: "fill-parent" }, /* @__PURE__ */ figma.widget.h(Text, { fontSize: 16, fontWeight: 600, fill: INK }, ideas === 0 ? t.noIdeasYet : writers > 0 ? `${t.ideas(ideas)} \xB7 ${t.people(writers)}` : t.ideas(ideas)), /* @__PURE__ */ figma.widget.h(Hint, null, t.nobodyReads)), /* @__PURE__ */ figma.widget.h(Button, { label: t.write, onClick: writeIdea }), /* @__PURE__ */ figma.widget.h(Button, { label: t.open, tone: "secondary", onClick: () => openJar(false) }), /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "horizontal", spacing: 6, verticalAlignItems: "center" }, /* @__PURE__ */ figma.widget.h(Text, { fontSize: 12, fill: MUTED }, t.timer), TIMER_MINUTES.map((m) => /* @__PURE__ */ figma.widget.h(Chip, { key: `t${m}`, label: `${m} min`, active: false, onClick: () => startTimer(m) })))) : null,
+      )), multi ? null : /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 8 }, /* @__PURE__ */ figma.widget.h(Text, { fontSize: 12, fill: MUTED }, t.orPick), /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "horizontal", width: "fill-parent", spacing: 6, wrap: true }, t.suggestions.map((s) => /* @__PURE__ */ figma.widget.h(Chip, { key: s, label: s, active: question === s, onClick: () => chooseQuestion(s) })))), /* @__PURE__ */ figma.widget.h(Hint, null, ideas > 0 ? t.lateInJar(ideas) : multi ? t.hintColumns : t.hintSingle), /* @__PURE__ */ figma.widget.h(Button, { label: t.start(round), onClick: start })) : /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 14, horizontalAlignItems: "center" }, /* @__PURE__ */ figma.widget.h(Text, { fontSize: 20, fontWeight: 700, fill: INK, width: "fill-parent", horizontalAlignText: "center" }, title), phase === "open" ? (
+        // El número de ideas sale del tarro como un bocadillo, arriba a la derecha.
+        /* @__PURE__ */ figma.widget.h(AutoLayout, { width: "fill-parent", height: 200 }, /* @__PURE__ */ figma.widget.h(SVG, { src: jarSvg(ideas, false), width: 170, height: 200, positioning: "absolute", x: 111, y: 0 }), ideas > 0 ? /* @__PURE__ */ figma.widget.h(AutoLayout, { positioning: "absolute", x: 234, y: 4, height: 48 }, /* @__PURE__ */ figma.widget.h(AutoLayout, { padding: { vertical: 7, horizontal: 12 }, cornerRadius: 14, fill: "#FFFFFF", stroke: "#D8D4CA", strokeWidth: 1.5 }, /* @__PURE__ */ figma.widget.h(Text, { fontSize: 15, fontWeight: 700, fill: INK }, t.ideas(ideas))), /* @__PURE__ */ figma.widget.h(SVG, { src: BUBBLE_TAIL, width: 14, height: 10, positioning: "absolute", x: 10, y: 33 })) : null)
+      ) : /* @__PURE__ */ figma.widget.h(SVG, { src: jarSvg(ideas, phase === "revealed"), width: 170, height: 200 }), multi && !revealedCounts ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "horizontal", spacing: 12, wrap: true, horizontalAlignItems: "center" }, format.columns.map((c) => /* @__PURE__ */ figma.widget.h(ColumnTag, { key: c.id, column: c }))) : null),
+      phase === "open" ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 12, horizontalAlignItems: "center" }, /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", spacing: 4, horizontalAlignItems: "center", width: "fill-parent" }, !present && writers > 0 ? /* @__PURE__ */ figma.widget.h(Text, { fontSize: 13, fill: MUTED }, t.people(writers)) : null, present ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 6, horizontalAlignItems: "center", padding: { vertical: 2 } }, /* @__PURE__ */ figma.widget.h(AutoLayout, { width: 200, height: 6, cornerRadius: 3, fill: "#EEEAE0" }, writers ? /* @__PURE__ */ figma.widget.h(AutoLayout, { width: Math.max(6, Math.round(200 * Math.min(writers, present) / Math.max(present, writers))), height: 6, cornerRadius: 3, fill: INK }) : null), /* @__PURE__ */ figma.widget.h(Text, { fontSize: 13, fill: MUTED }, t.wroteOf(writers, Math.max(present, writers)))) : null), /* @__PURE__ */ figma.widget.h(Button, { label: t.write, onClick: writeIdea }), /* @__PURE__ */ figma.widget.h(Button, { label: t.open, tone: "secondary", onClick: () => openJar(false) }), /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "horizontal", spacing: 6, verticalAlignItems: "center" }, /* @__PURE__ */ figma.widget.h(Text, { fontSize: 12, fill: MUTED }, t.timer), TIMER_MINUTES.map((m) => /* @__PURE__ */ figma.widget.h(Chip, { key: `t${m}`, label: `${m} min`, active: false, onClick: () => startTimer(m) })))) : null,
       phase === "confirm" ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 12 }, /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", padding: 14, spacing: 4, cornerRadius: 12, fill: "#FFF1D6" }, /* @__PURE__ */ figma.widget.h(Text, { fontSize: 14, fontWeight: 600, fill: "#8A5300" }, writers === 0 ? t.nobodyWrote : t.onlyWrote(writers)), /* @__PURE__ */ figma.widget.h(Text, { fontSize: 13, fill: "#8A5300", width: "fill-parent", lineHeight: 19 }, t.easyToGuess(MIN_PEOPLE))), /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "horizontal", width: "fill-parent", spacing: 8 }, /* @__PURE__ */ figma.widget.h(Button, { label: t.wait, tone: "secondary", onClick: keepWaiting }), /* @__PURE__ */ figma.widget.h(Button, { label: t.openAnyway, onClick: () => openJar(true) }))) : null,
-      phase === "revealed" && reveal ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 12, horizontalAlignItems: "center" }, /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", spacing: 4, horizontalAlignItems: "center", width: "fill-parent" }, /* @__PURE__ */ figma.widget.h(Text, { fontSize: 16, fontWeight: 600, fill: INK }, t.opened(reveal.count)), multi && revealedCounts ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "horizontal", spacing: 14, wrap: true, horizontalAlignItems: "center" }, format.columns.map((c) => /* @__PURE__ */ figma.widget.h(ColumnTag, { key: c.id, column: c, count: revealedCounts[c.id] || 0 }))) : null, ideas > 0 ? /* @__PURE__ */ figma.widget.h(Hint, null, t.newIdeas(ideas)) : null), /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "horizontal", width: "fill-parent", spacing: 8 }, /* @__PURE__ */ figma.widget.h(Button, { label: t.showIdeas, tone: "secondary", onClick: showIdeas }), /* @__PURE__ */ figma.widget.h(Button, { label: t.newRound, onClick: newRound }))) : null,
+      phase === "revealed" && reveal ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 12, horizontalAlignItems: "center" }, /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", spacing: 4, horizontalAlignItems: "center", width: "fill-parent" }, /* @__PURE__ */ figma.widget.h(Text, { fontSize: 16, fontWeight: 600, fill: INK }, t.opened(reveal.count)), multi && revealedCounts ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "horizontal", spacing: 14, wrap: true, horizontalAlignItems: "center" }, format.columns.map((c) => /* @__PURE__ */ figma.widget.h(ColumnTag, { key: c.id, column: c, count: revealedCounts[c.id] || 0 }))) : null, ideas > 0 ? /* @__PURE__ */ figma.widget.h(Hint, null, t.newIdeas(ideas)) : null), vote && vote.open ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 10, horizontalAlignItems: "center" }, /* @__PURE__ */ figma.widget.h(Button, { label: t.vote(MAX_VOTES), onClick: castVotes }), /* @__PURE__ */ figma.widget.h(Text, { fontSize: 13, fill: MUTED }, t.voters(votes.size)), /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "horizontal", width: "fill-parent", spacing: 8 }, /* @__PURE__ */ figma.widget.h(Button, { label: t.showIdeas, tone: "secondary", onClick: showIdeas }), /* @__PURE__ */ figma.widget.h(Button, { label: t.closeVote, tone: "secondary", onClick: closeVote }))) : /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 10 }, vote && vote.results ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", width: "fill-parent", spacing: 6 }, /* @__PURE__ */ figma.widget.h(Label, null, t.topIdeas), vote.results.length ? vote.results.map((r) => /* @__PURE__ */ figma.widget.h(
+        AutoLayout,
+        {
+          key: r.id,
+          direction: "horizontal",
+          width: "fill-parent",
+          spacing: 10,
+          padding: { vertical: 8, horizontal: 10 },
+          cornerRadius: 8,
+          fill: "#F4F2EC",
+          hoverStyle: { fill: "#EAE6DB" },
+          verticalAlignItems: "center",
+          onClick: () => showNote(r.id)
+        },
+        /* @__PURE__ */ figma.widget.h(Text, { fontSize: 13, fontWeight: 700, fill: INK }, t.votesCount(r.n)),
+        /* @__PURE__ */ figma.widget.h(Text, { fontSize: 13, fill: INK, width: "fill-parent", truncate: 2 }, r.t)
+      )) : /* @__PURE__ */ figma.widget.h(Text, { fontSize: 13, fill: MUTED }, t.noVotes)) : /* @__PURE__ */ figma.widget.h(Button, { label: t.startVote, onClick: startVote }), /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "horizontal", width: "fill-parent", spacing: 8 }, /* @__PURE__ */ figma.widget.h(Button, { label: t.showIdeas, tone: "secondary", onClick: showIdeas }), /* @__PURE__ */ figma.widget.h(Button, { label: t.newRound, tone: vote && vote.results ? "primary" : "secondary", onClick: newRound })))) : null,
       facilitator ? /* @__PURE__ */ figma.widget.h(Text, { fontSize: 12, fill: MUTED }, t.ledBy(facilitator.name)) : null
     );
   }

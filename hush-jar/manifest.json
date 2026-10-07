@@ -9,5 +9,5 @@
   "ui": "ui.html",
   "documentAccess": "dynamic-page",
   "networkAccess": { "allowedDomains": ["none"] },
-  "permissions": ["currentuser"]
+  "permissions": ["currentuser", "activeusers"]
 }

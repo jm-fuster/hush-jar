@@ -52,7 +52,6 @@ From the jar you can also start FigJam's timer (3, 5 or 10 minutes). If you pres
 ## How it keeps ideas anonymous
 
 - Each idea is stored with a random key and its column. No name, no user ID, no time.
-- An idea is saved 2 to 5 seconds after you click, at random, so the moment you hit the button doesn't give you away. Edits and removals wait too.
 - The jar counts people with a random token kept on each person's computer, never with names.
 - The slips inside the jar don't use their column's colour, so nobody can tell from a colour what someone wrote.
 - If fewer than 3 people have written, the jar warns the facilitator before opening: with that few people it's easy to guess who wrote what.
@@ -102,7 +101,7 @@ The step-by-step testing and publishing guide is in [`hush-jar/README.md`](hush-
 
 ## Status
 
-The Community version is 0.4. This repository has 0.5, which is still being tested in FigJam: a "3 of 5 have written" counter, renamable retro columns and anonymous voting after the jar is opened.
+Version 0.5, on the Community: anonymous voting after the jar is opened, renamable retro columns and a "3 of 5 have written" counter.
 
 Known gaps:
 

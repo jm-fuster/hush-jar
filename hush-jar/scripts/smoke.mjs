@@ -7,6 +7,8 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import vm from 'node:vm'
 
 const code = readFileSync(new URL('../dist/code.js', import.meta.url), 'utf8')
+const manifest = JSON.parse(readFileSync(new URL('../manifest.json', import.meta.url), 'utf8'))
+let activeUsers = []
 const SPEED = 100
 const realSetTimeout = setTimeout
 const sleep = (ms) => new Promise((r) => realSetTimeout(r, ms))
@@ -89,6 +91,9 @@ let ui = null
 const figma = {
   widget: widgetApi,
   get currentUser() { return currentUser },
+  // Como en Figma: sin el permiso «activeusers» en manifest.json, leerlo da error.
+  get activeUsers() { if (!manifest.permissions?.includes('activeusers')) throw new Error('falta el permiso activeusers'); return activeUsers },
+  set activeUsers(v) { activeUsers = v },
   clientStorage: {
     getAsync: async (k) => (device.has(k) ? JSON.parse(device.get(k)) : undefined),
     setAsync: async (k, v) => { device.set(k, JSON.stringify(v)) },
@@ -132,7 +137,7 @@ function walk(node, visit) {
 const tree = () => { effects = []; const out = registered(); for (const fn of effects) fn(); return out }
 // Renderiza y espera a las tareas de los efectos (p. ej. leer el idioma guardado en el ordenador).
 const settle = async () => { tree(); while (tasks.length) await tasks.shift() }
-const texts = () => { const out = []; walk(tree(), (n) => { if (n.type === 'Text') out.push((n.props.children || []).join('')) }); return out }
+const texts = () => { const out = []; walk(tree(), (n) => { if (n.type === 'Text') out.push((n.props.children || []).join('')); if (n.type === 'Input' && n.props.value) out.push(n.props.value) }); return out }
 const svgSrc = () => { let s = ''; walk(tree(), (n) => { if (n.type === 'SVG') s = n.props.src }); return s }
 function button(label) {
   let found = null
@@ -209,7 +214,7 @@ check('volver · a la preparación, con todo como estaba', state.get('phase') ==
 await button('Empezar')()
 
 let saved = await writeIdea('Las reuniones de los lunes son demasiado largas')
-check('Jorge escribe · se guarda con retraso', saved && !saved.late && maps.slips.size === 1)
+check('Jorge escribe · se guarda', saved && !saved.late && maps.slips.size === 1)
 await writeIdea('Echo de menos las demos de los viernes')
 check('Jorge escribe otra · 1 persona, 2 ideas', maps.people.size === 1 && maps.slips.size === 2, texts().find((t) => t.includes('ideas ·')))
 
@@ -412,7 +417,7 @@ check('editar · al volver ves tus ideas', p.init?.mine?.length === 2 && p.init.
 check('ventanita · recibe sus textos en español', initEs?.lang === 'es' && initEs.text?.seal === 'Echar al tarro' && initEs.question === '¿Qué te preocupa?')
 p = await panel([{ msg: { type: 'edit', key: k1, text: 'Versión corregida' }, wait: 'edited' }])
 check('editar · cambia el texto sin cambiar el número de ideas', maps.slips.get(k1)?.t === 'Versión corregida' && maps.slips.size === 2)
-check('editar · también espera unos segundos al azar', p.posted.some((m) => m.type === 'sealing' && m.action === 'edit'))
+check('editar · sin esperas', !p.posted.some((m) => m.type === 'sealing'))
 p = await panel([{ msg: { type: 'retract', key: k2 }, wait: 'retracted' }])
 check('retirar · la idea sale del tarro', !maps.slips.has(k2) && maps.slips.size === 1)
 p = await panel([])
@@ -476,7 +481,7 @@ currentUser = users.ana; device = devices.B
 await writeIn('Fewer status meetings', 'dejar')
 currentUser = users.jorge; device = devices.A
 await writeIn('Keep the Friday demos', 'seguir')
-check('inglés · recuento de ideas y personas', shows('3 ideas · 3 people') && shows('No one can read them until the jar is opened.'))
+check('inglés · recuento de ideas y personas', shows('3 ideas') && shows('3 people'))
 lookEn()
 
 currentUser = users.ana; device = devices.B
@@ -517,6 +522,87 @@ seenEn.push(notices.at(-1))
 const leaks = [...new Set(seenEn)].filter((s) => spanish.test(s))
 check('inglés · no se cuela nada en español', seenEn.length > 50 && leaks.length === 0, leaks.length ? leaks.join(' | ') : `${new Set(seenEn).size} textos revisados`)
 
+// ---------- mejoras v0.5: contador, columnas con nombre propio y votación ----------
+await menu('lang', 'es')
+await menu('reset')
+for (const n of [...nodes.values()]) if (n.type === 'SECTION') n.remove()
+currentUser = users.jorge; device = devices.A
+figma.activeUsers = [users.jorge, users.ana, users.luis, { id: '444', name: 'Eva' }]
+await button('Retrospectiva')()
+const colInputs = () => { const out = []; walk(tree(), (n) => { if (n.type === 'Input' && n.props.placeholder && !n.props.placeholder.startsWith('Por ejemplo')) out.push(n) }); return out }
+check('columnas · se pueden renombrar en la preparación', colInputs().length === 3 && colInputs()[0].props.value === 'Qué fue bien')
+colInputs()[0].props.onTextEditEnd({ characters: '  Nos ha encantado  ' })
+check('columnas · el nombre nuevo se guarda', state.get('labels')?.['retro:bien'] === 'Nos ha encantado' && colInputs()[0].props.value === 'Nos ha encantado')
+await button('Empezar')()
+await button('← Volver')()
+currentUser = users.ana; device = devices.B
+colInputs()[1].props.onTextEditEnd({ characters: 'De Ana' })
+check('columnas · solo quien dirige las renombra', !state.get('labels')?.['retro:mejorar'])
+currentUser = users.jorge; device = devices.A
+colInputs()[2].props.onTextEditEnd({ characters: 'Qué probar' })
+check('columnas · el nombre de siempre no se guarda', !('retro:probar' in (state.get('labels') || {})))
+await button('Empezar')()
+check('contador · 0 de 4 al empezar', shows('0 de 4 personas han escrito'), texts().find((x) => x.includes(' de ')))
+const initCols = await writeIn('Las demos', 'bien')
+check('columnas · la ventanita recibe el nombre nuevo', initCols?.columns?.[0]?.label === 'Nos ha encantado')
+await writeIn('Buen ambiente', 'bien')
+currentUser = users.ana; device = devices.B
+await writeIn('Demasiadas reuniones', 'mejorar')
+currentUser = users.luis; device = devices.C
+await writeIn('Más pairing', 'probar')
+check('contador · 3 de 4 han escrito', shows('3 de 4 personas han escrito') && shows('4 ideas'))
+currentUser = users.jorge; device = devices.A
+await button('Abrir el tarro')()
+const vSections = [...nodes.values()].filter((n) => n.type === 'SECTION')
+check('columnas · la sección usa el nombre nuevo', vSections.some((s) => s.name === 'Nos ha encantado · Retrospectiva'))
+
+currentUser = users.ana; device = devices.B
+await button('Votar las ideas')()
+check('votar · solo quien dirige abre la votación', !state.get('vote') && notices.at(-1)?.includes('Solo Jorge Molina'))
+currentUser = users.jorge; device = devices.A
+await button('Votar las ideas')()
+check('votar · votación abierta', state.get('vote')?.open === true && shows('Todavía no ha votado nadie') && shows('Votar (3 votos por persona)'))
+
+async function votePanel(pick) {
+  ui.posted.length = 0
+  const running = button('Votar (3 votos por persona)')()
+  await sleep(10)
+  const init = ui.posted.find((m) => m.type === 'init')
+  const ids = pick(init.notes)
+  ui.onmessage({ type: 'vote', ids })
+  for (let i = 0; i < 100 && !ui.posted.some((m) => m.type === 'voted' || m.type === 'refused'); i++) await sleep(5)
+  const answer = ui.posted.find((m) => m.type === 'voted' || m.type === 'refused')
+  ui.onmessage({ type: 'close' })
+  await running
+  return { init, answer }
+}
+const idOf = (notes, txt) => notes.find((n) => n.t === txt).id
+let vp = await votePanel((ns) => [idOf(ns, 'Demasiadas reuniones'), idOf(ns, 'Las demos')])
+const voteInit = vp.init
+check('votar · la ventanita lista las 4 notas con 3 votos', vp.init?.mode === 'vote' && vp.init.notes.length === 4 && vp.init.max === 3 && vp.init.text?.saveVotes === 'Guardar mis votos')
+currentUser = users.ana; device = devices.B
+vp = await votePanel((ns) => [idOf(ns, 'Demasiadas reuniones'), idOf(ns, 'Demasiadas reuniones'), idOf(ns, 'Más pairing'), idOf(ns, 'Las demos'), idOf(ns, 'Buen ambiente')])
+check('votar · sin repetir y máximo 3', vp.answer?.ids?.length === 3)
+currentUser = users.luis; device = devices.C
+await votePanel((ns) => [idOf(ns, 'Las demos')])
+vp = await votePanel((ns) => [idOf(ns, 'Demasiadas reuniones')])
+check('votar · al volver ves tus votos y puedes cambiarlos', vp.init.chosen.length === 1 && maps.votes.size === 3)
+check('votar · cuenta quién ha votado, no quién es', shows('Han votado 3 personas') && !/Jorge|Ana|Luis|"111"|"222"|"333"/.test(JSON.stringify(maps.votes.entries())))
+currentUser = users.jorge; device = devices.A
+await button('Cerrar la votación')()
+const res = state.get('vote')?.results || []
+check('votar · resultados ordenados', res[0]?.t === 'Demasiadas reuniones' && res[0]?.n === 3 && res[1]?.t === 'Las demos' && res[1]?.n === 2, JSON.stringify(res.map((r) => r.t + ':' + r.n)))
+check('votar · se ven las más votadas y se borran los votos', shows('LAS MÁS VOTADAS') && shows('3 votos') && maps.votes.size === 0)
+const bienSec = vSections.find((s) => s.name.startsWith('Nos ha encantado'))
+const first = bienSec.children.find((c) => c.x === 40 && c.y === 70)
+check('votar · en cada sección la más votada va primero', first?.text.characters === 'Las demos')
+currentUser = users.luis; device = devices.C
+vp = { answer: null }
+check('votar · cerrada ya no se ofrece votar', !shows('Votar (3 votos por persona)'))
+currentUser = users.jorge; device = devices.A
+await button('Nueva ronda')()
+check('nueva ronda · la votación se borra', !state.get('vote'))
+
 // Vista previa del dibujo del tarro
 const html = `<!doctype html><meta charset="utf-8"><title>Tarro de Hush Jar</title>
 <style>body{font:14px system-ui;background:#f4f2ec;display:flex;gap:24px;flex-wrap:wrap;padding:24px}figure{margin:0;background:#fff;border-radius:16px;padding:16px;text-align:center}figcaption{margin-top:8px;color:#555}</style>
@@ -529,7 +615,7 @@ const attr = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
 const windows = [
   { label: 'Español · una pregunta', messages: [initEs, { type: 'saved', key: 'vista1', t: 'Probar a hacer la daily de pie', c: 'idea', late: false }] },
   { label: 'English · Start · Stop · Continue', messages: [enLate.init, { type: 'saved', key: 'vista2', t: 'Pair on the release checklist', c: 'seguir', late: false }] },
-  { label: 'English · guardando', messages: [enLate.init, { type: 'sealing', action: 'seal', seconds: 3 }] },
+  { label: 'Español · votar', messages: [{ ...voteInit, chosen: voteInit.notes.slice(0, 2).map((n) => n.id) }, { type: 'voted', ids: voteInit.notes.slice(0, 2).map((n) => n.id) }] },
 ]
 const panelsHtml = `<!doctype html><meta charset="utf-8"><title>Ventanita de Hush Jar</title>
 <style>body{font:14px system-ui;background:#f4f2ec;display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;padding:24px}figure{margin:0}iframe{display:block;width:380px;height:340px;border:0;border-radius:12px;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.08)}figcaption{margin-top:8px;color:#555;text-align:center}</style>

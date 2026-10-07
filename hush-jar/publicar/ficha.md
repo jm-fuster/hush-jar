@@ -66,12 +66,14 @@ FORMATS
 
 ANONYMOUS BY DESIGN
 • Ideas are saved with no names or user IDs attached.
-• Each idea is saved after a random 2–5 second delay, so the moment someone clicks doesn't give them away.
 • If fewer than 3 people have written, the jar warns you before opening: with so few people, it's easy to guess who wrote what.
 • The stickies are created by the facilitator, with the author's name hidden.
 • No network access: nothing is sent outside Figma.
 
 ALSO
+• Vote anonymously on the ideas (3 votes each) and see the top ones.
+• See how many people have written so far: "3 of 5 have written".
+• Rename the retro columns to fit your team.
 • Start FigJam's timer from the jar: 3, 5 or 10 minutes.
 • Ideas that arrive after the jar is opened aren't lost: they come out in the next round.
 • Pressed Start with the wrong format? Go back while nobody has written yet.
@@ -99,12 +101,14 @@ FORMATOS
 
 ANÓNIMO POR DISEÑO
 • Las ideas se guardan sin nombre ni identificador de usuario.
-• Cada idea se guarda con unos segundos de retraso al azar (entre 2 y 5), para que el momento del clic no delate a nadie.
 • Si han escrito menos de 3 personas, el tarro avisa antes de abrirse: con tan poca gente es fácil adivinar quién escribió qué.
 • Las notas las crea quien dirige, con el nombre del autor oculto.
 • No se conecta a internet: nada sale de Figma.
 
 ADEMÁS
+• Votad las ideas de forma anónima (3 votos por persona) y ved las más votadas.
+• Mira cuántas personas han escrito ya: «3 de 5 han escrito».
+• Cambia el nombre de las columnas de la retro.
 • Pon el temporizador de FigJam desde el tarro: 3, 5 o 10 minutos.
 • Las ideas que llegan cuando el tarro ya está abierto no se pierden: salen en la ronda siguiente.
 • ¿Has pulsado Empezar con el formato equivocado? Puedes volver atrás mientras nadie haya escrito.

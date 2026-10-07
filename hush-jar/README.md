@@ -24,8 +24,7 @@ Mientras el widget está en desarrollo, solo lo puede usar quien lo ha importado
 - Escritura privada: la ventanita solo la ve quien la abre.
 - Tres formatos: una pregunta, retro y «Empezar · Dejar · Seguir». En las retros, cada idea va a su columna.
 - Cuenta ideas y personas sin saber quiénes son. Cada ordenador tiene una marca al azar, y nunca se guarda un nombre junto a una idea.
-- Guarda cada idea con unos segundos de retraso al azar, para que el momento del clic no delate a nadie.
-- Puedes editar o retirar tus ideas hasta que se abra el tarro. En la ventanita aparecen solo las tuyas, porque tu ordenador recuerda cuáles son. En el tarro nada dice de quién es cada idea. Editar y retirar también esperan unos segundos al azar.
+- Puedes editar o retirar tus ideas hasta que se abra el tarro. En la ventanita aparecen solo las tuyas, porque tu ordenador recuerda cuáles son. En el tarro nada dice de quién es cada idea.
 - Los papelitos del tarro no llevan el color de su columna, para que nadie adivine por el color qué ha escrito cada persona.
 - Solo quien dirige puede abrir el tarro y poner el temporizador. Si otra persona tiene que dirigir, puede tomar el relevo desde el menú del widget.
 - Si empiezas con el formato o la pregunta equivocados, **← Volver** te devuelve a la preparación con todo como estaba. Aparece mientras nadie haya escrito en esa ronda, para que ninguna idea acabe respondiendo a otra pregunta.

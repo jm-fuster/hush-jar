@@ -1,4 +1,4 @@
-// Hush Jar (v0.4)
+// Hush Jar (v0.5)
 // Tarro de ideas para FigJam: cada persona escribe en privado y quien dirige abre el tarro
 // cuando quiere; las ideas salen barajadas como notas sin firma, agrupadas por columna.
 //
@@ -6,7 +6,6 @@
 // - Las ideas se guardan en `slips` bajo claves aleatorias generadas en el iframe, sin autor ni hora.
 // - Quién ha escrito se cuenta con un token aleatorio por dispositivo (`people`), nunca con el usuario.
 // - Las notas las crea quien abre el tarro, con la firma oculta: FigJam no deja cambiar el autor.
-// - Cada idea se guarda con un retraso al azar para que el momento del clic no delate a nadie.
 // - El tarro no pinta los papelitos con el color de su columna: así nadie deduce, por el color que
 //   aparece justo después de un clic, en qué columna escribió cada persona.
 //
@@ -37,6 +36,19 @@ interface Reveal {
   sectionIds?: string[]
   sectionId?: string // versiones anteriores
   counts?: { [column: string]: number }
+}
+
+// Votación tras abrir el tarro. Los votos van en el mapa `votes`, bajo el token al azar de cada
+// ordenador (como `people`): se sabe cuántos han votado, nunca quién ni qué.
+interface Vote {
+  open: boolean
+  results?: { id: string; t: string; n: number }[]
+}
+
+interface Note {
+  id: string
+  t: string
+  hex: string
 }
 
 interface ColumnDef {
@@ -90,12 +102,21 @@ const INK = '#1D1D1F'
 const MUTED = '#6B6B66'
 // Último idioma elegido en este ordenador: con él empiezan los tarros nuevos que pongas.
 const LANG_KEY = 'hushjar:idioma'
+const MAX_VOTES = 3
+const MAX_LABEL = 40
+const STICKY_STEP = 260
+// Pico del bocadillo, que apunta al tarro. La franja blanca de arriba tapa el borde del bocadillo
+// para que se vea como una sola pieza.
+const BUBBLE_TAIL =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="10" viewBox="0 0 14 10"><path d="M1 0.5 L2 9 L10 0.5" fill="#FFFFFF" stroke="#D8D4CA" stroke-width="1.5" stroke-linejoin="round"/><rect x="1.8" y="0" width="7.4" height="1.8" fill="#FFFFFF"/></svg>'
 
-function formatsIn(t: Strings): Format[] {
+// `labels` guarda los nombres que quien dirige ha puesto a las columnas, como "formato:columna".
+// Las columnas sin nombre propio usan el del idioma del tarro.
+function formatsIn(t: Strings, labels: { [key: string]: string }): Format[] {
   return FORMAT_DEFS.map((f) => ({
     id: f.id,
     name: t.formats[f.id],
-    columns: f.columns.map((c) => ({ ...c, label: t.columns[c.id] })),
+    columns: f.columns.map((c) => ({ ...c, label: labels[`${f.id}:${c.id}`] || t.columns[c.id] })),
   }))
 }
 
@@ -240,10 +261,15 @@ function HushJar() {
   const [storedLang, setLang] = useSyncedState<string>('lang', '')
   const slips = useSyncedMap<Slip>('slips')
   const people = useSyncedMap<number>('people')
+  const [labels, setLabels] = useSyncedState<{ [key: string]: string }>('labels', {})
+  // Cuántas personas tenían el archivo abierto la última vez que alguien tocó el tarro.
+  const [present, setPresent] = useSyncedState<number>('present', 0)
+  const [vote, setVote] = useSyncedState<Vote | null>('vote', null)
+  const votes = useSyncedMap<string[]>('votes')
 
   const lang: Lang = isLang(storedLang) ? storedLang : DEFAULT_LANG
   const t = strings(lang)
-  const formats = formatsIn(t)
+  const formats = formatsIn(t, labels)
   const format = formatById(formats, formatId)
   const multi = format.columns.length > 1
   // Una retro sin título se llama como su formato, en el idioma que tenga el tarro en cada momento.
@@ -280,6 +306,17 @@ function HushJar() {
     return false
   }
 
+  // figma.activeUsers solo se puede leer dentro de un handler: se apunta cada vez que alguien
+  // toca el tarro, para enseñar «2 de 5 han escrito».
+  function notePresent() {
+    try {
+      const n = figma.activeUsers.length
+      if (n > 0 && n !== present) setPresent(n)
+    } catch (e) {
+      // Sin activeUsers se enseña solo el número de personas que han escrito.
+    }
+  }
+
   // Antes de la primera ronda cualquiera puede prepararla; después, solo quien dirige.
   function canPrepare(): boolean {
     return !facilitator || onlyFacilitator()
@@ -302,6 +339,17 @@ function HushJar() {
     setFormatId(id)
   }
 
+  // Vacío o igual al nombre de siempre = vuelve al nombre del idioma del tarro.
+  function renameColumn(id: ColumnId, text: string) {
+    if (!canPrepare()) return
+    const key = `${formatId}:${id}`
+    const name = text.trim().slice(0, MAX_LABEL)
+    const next = { ...labels }
+    if (!name || name === t.columns[id]) delete next[key]
+    else next[key] = name
+    setLabels(next)
+  }
+
   async function start() {
     const current = me()
     if (!current) {
@@ -314,6 +362,7 @@ function HushJar() {
       return
     }
     if (!facilitator) setFacilitator(current)
+    notePresent()
     setPhase('open')
   }
 
@@ -336,6 +385,7 @@ function HushJar() {
     // para que solo tú puedas editarlas o retirarlas.
     const tokenKey = `hushjar:${nodeId}:persona`
     const mineKey = `hushjar:${nodeId}:mias`
+    notePresent()
     let token: string | undefined
     let mineKeys: string[] = []
     try {
@@ -372,8 +422,8 @@ function HushJar() {
     })
 
     await new Promise<void>((resolve) => {
-      // Echar, editar o retirar se aplica tras unos segundos al azar: así el momento del clic
-      // no delata a nadie. `run(live)`: live=false cuando la ventana se está cerrando.
+      // Echar, editar o retirar se aplica en cuanto se lee el estado del tarro.
+      // `run(live)`: live=false cuando la ventana se está cerrando.
       let pending: { run: (live: boolean) => void; timer: number } | null = null
 
       const flush = () => {
@@ -383,12 +433,11 @@ function HushJar() {
         clearTimeout(timer)
         run(false)
       }
-      // Si alguien cierra la ventana antes de que termine el retraso, se aplica ya.
+      // Si alguien cierra la ventana antes de que se aplique, se aplica ya.
       const onClose = () => flush()
       figma.on('close', onClose)
 
-      const later = (action: 'seal' | 'edit' | 'retract', run: (live: boolean, late: boolean) => void) => {
-        const delay = 2000 + Math.floor(Math.random() * 3000)
+      const later = (run: (live: boolean, late: boolean) => void) => {
         const timer = setTimeout(async () => {
           // Relee el estado: quizá el tarro se abrió o cambió de ronda mientras tanto.
           const node = await figma.getNodeByIdAsync(nodeId)
@@ -399,9 +448,8 @@ function HushJar() {
           const late = state.phase === 'revealed' || roundNow !== openedIn
           pending = null
           run(true, late)
-        }, delay)
+        }, 0)
         pending = { run: (live) => run(live, false), timer }
-        figma.ui.postMessage({ type: 'sealing', action, seconds: Math.round(delay / 1000) })
       }
 
       const alreadyOut = (key: string) => {
@@ -441,7 +489,7 @@ function HushJar() {
           if (!text || !key) return
           // Primero se programa el guardado (sin esperas), para que cerrar la ventana justo
           // después de sellar no pierda la idea; luego se apunta como tuya en este ordenador.
-          later('seal', (live, late) => {
+          later((live, late) => {
             slips.set(key, { t: text, c })
             if (token) people.set(`${roundNow}:${token}`, 1)
             if (live) figma.ui.postMessage({ type: 'saved', key, t: text, c, late })
@@ -453,7 +501,7 @@ function HushJar() {
         if (msg.type === 'edit') {
           if (!text || mineKeys.indexOf(key) < 0) return // solo tus propias ideas
           if (!slips.has(key)) return alreadyOut(key)
-          later('edit', (live, late) => {
+          later((live, late) => {
             if (late || !slips.has(key)) {
               if (live) alreadyOut(key)
               return
@@ -466,7 +514,7 @@ function HushJar() {
         if (msg.type === 'retract') {
           if (mineKeys.indexOf(key) < 0) return
           if (!slips.has(key)) return alreadyOut(key)
-          later('retract', (live, late) => {
+          later((live, late) => {
             if (late || !slips.has(key)) {
               if (live) alreadyOut(key)
               return
@@ -518,6 +566,7 @@ function HushJar() {
 
   async function openJar(force: boolean) {
     if (!onlyFacilitator()) return
+    notePresent()
     const entries = slips.entries()
     if (!entries.length) {
       figma.notify(t.emptyJar)
@@ -585,12 +634,7 @@ function HushJar() {
   }
 
   async function showIdeas() {
-    const ids = reveal ? reveal.sectionIds || (reveal.sectionId ? [reveal.sectionId] : []) : []
-    const found: SceneNode[] = []
-    for (const id of ids) {
-      const node = await figma.getNodeByIdAsync(id)
-      if (node && node.type === 'SECTION') found.push(node)
-    }
+    const found = await revealedSections()
     if (!found.length) {
       figma.notify(t.sectionsMissing)
       return
@@ -598,10 +642,138 @@ function HushJar() {
     figma.viewport.scrollAndZoomIntoView(found)
   }
 
+  // ---------- votar ----------
+
+  // Las notas que salieron del tarro, tal como están ahora en el tablero (quizá alguien las ha
+  // editado o borrado). Cada sección corresponde a una columna, en el mismo orden.
+  async function revealedSections(): Promise<SectionNode[]> {
+    const ids = reveal ? reveal.sectionIds || (reveal.sectionId ? [reveal.sectionId] : []) : []
+    const found: SectionNode[] = []
+    for (const id of ids) {
+      const node = await figma.getNodeByIdAsync(id)
+      if (node && node.type === 'SECTION') found.push(node)
+    }
+    return found
+  }
+
+  async function revealedNotes(): Promise<Note[]> {
+    const notes: Note[] = []
+    const sections = await revealedSections()
+    sections.forEach((section, i) => {
+      const hex = (format.columns[i] || format.columns[0]).hex
+      for (const child of section.children) {
+        if (child.type === 'STICKY' && child.text.characters.trim()) notes.push({ id: child.id, t: child.text.characters, hex })
+      }
+    })
+    return notes
+  }
+
+  async function startVote() {
+    if (!onlyFacilitator()) return
+    if (!(await revealedNotes()).length) {
+      figma.notify(t.noNotesToVote)
+      return
+    }
+    for (const key of votes.keys()) votes.delete(key)
+    setVote({ open: true })
+  }
+
+  async function castVotes() {
+    const notes = await revealedNotes()
+    if (!notes.length) {
+      figma.notify(t.noNotesToVote)
+      return
+    }
+    const max = Math.min(MAX_VOTES, notes.length)
+    const tokenKey = `hushjar:${nodeId}:persona`
+    let token: string | undefined
+    try {
+      token = await figma.clientStorage.getAsync(tokenKey)
+    } catch (e) {
+      // Sin clientStorage el token llega de la ventanita y solo vale para esta vez.
+    }
+    const chosen = token ? (votes.get(token) || []).filter((id) => notes.some((n) => n.id === id)) : []
+
+    figma.showUI(__html__, { width: 380, height: 420, title: t.vote(max), themeColors: true })
+    figma.ui.postMessage({ type: 'init', mode: 'vote', lang, text: t.panel, question: title, notes, max, chosen })
+
+    await new Promise<void>((resolve) => {
+      const done = () => {
+        figma.off('close', done)
+        resolve()
+      }
+      figma.on('close', done)
+      figma.ui.onmessage = async (msg) => {
+        if (!msg) return
+        if (msg.type === 'close') return done()
+        if (msg.type === 'resize') {
+          figma.ui.resize(380, Math.max(300, Math.min(640, Math.round(Number(msg.height) || 0))))
+          return
+        }
+        if (msg.type === 'ready' && !token) {
+          token = String(msg.token)
+          try {
+            await figma.clientStorage.setAsync(tokenKey, token)
+          } catch (e) {
+            // Igual que al escribir: sin clientStorage esta persona podría contar dos veces.
+          }
+          return
+        }
+        if (msg.type === 'vote' && token) {
+          // Relee el estado: quizá quien dirige ha cerrado la votación con la ventanita abierta.
+          const node = await figma.getNodeByIdAsync(nodeId)
+          const state = node && node.type === 'WIDGET' ? node.widgetSyncedState : {}
+          if (!state.vote || !state.vote.open) {
+            figma.ui.postMessage({ type: 'refused', text: t.panel.voteClosed })
+            return
+          }
+          const ids: string[] = Array.isArray(msg.ids) ? msg.ids.map(String) : []
+          const valid = ids.filter((id, i) => ids.indexOf(id) === i && notes.some((n) => n.id === id)).slice(0, max)
+          votes.set(token, valid)
+          figma.ui.postMessage({ type: 'voted', ids: valid })
+        }
+      }
+    })
+  }
+
+  // Cuenta los votos, ordena las notas de cada sección de más a menos votadas y borra los votos.
+  async function closeVote() {
+    if (!onlyFacilitator()) return
+    const tally: { [id: string]: number } = {}
+    for (const ids of votes.values()) for (const id of ids) tally[id] = (tally[id] || 0) + 1
+    const notes = await revealedNotes()
+    for (const section of await revealedSections()) {
+      const stickies = section.children.filter((c): c is StickyNode => c.type === 'STICKY')
+      const perRow = Math.max(1, Math.round((section.width - 60) / STICKY_STEP))
+      stickies
+        .map((s, i) => ({ s, i, n: tally[s.id] || 0 }))
+        .sort((a, b) => b.n - a.n || a.i - b.i)
+        .forEach(({ s }, i) => {
+          s.x = 40 + (i % perRow) * STICKY_STEP
+          s.y = 70 + Math.floor(i / perRow) * STICKY_STEP
+        })
+    }
+    const results = notes
+      .map((note) => ({ id: note.id, t: note.t, n: tally[note.id] || 0 }))
+      .filter((r) => r.n > 0)
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 3)
+    for (const key of votes.keys()) votes.delete(key)
+    setVote({ open: false, results })
+  }
+
+  async function showNote(id: string) {
+    const node = await figma.getNodeByIdAsync(id)
+    if (node && node.type === 'STICKY') figma.viewport.scrollAndZoomIntoView([node])
+    else figma.notify(t.noNotesToVote)
+  }
+
   // Cada ronda empieza eligiendo su pregunta. Las ideas que llegaron tarde siguen en el tarro.
   async function newRound() {
     if (!onlyFacilitator()) return
     for (const key of people.keys()) people.delete(key)
+    for (const key of votes.keys()) votes.delete(key)
+    setVote(null)
     setRound(round + 1)
     setReveal(null)
     setQuestion('')
@@ -646,6 +818,10 @@ function HushJar() {
         if (!onlyFacilitator()) return
         for (const key of slips.keys()) slips.delete(key)
         for (const key of people.keys()) people.delete(key)
+        for (const key of votes.keys()) votes.delete(key)
+        setVote(null)
+        setLabels({})
+        setPresent(0)
         setReveal(null)
         setRound(1)
         setQuestion('')
@@ -698,14 +874,33 @@ function HushJar() {
 
           <AutoLayout direction="vertical" width="fill-parent" spacing={10}>
             <Tabs items={formats.map((f) => ({ id: f.id, label: f.name }))} active={formatId} onSelect={(id) => chooseFormat(id as FormatId)} />
-            {multi ? (
-              <AutoLayout direction="horizontal" width="fill-parent" spacing={12} wrap>
-                {format.columns.map((c) => (
-                  <ColumnTag key={c.id} column={c} />
-                ))}
-              </AutoLayout>
-            ) : null}
           </AutoLayout>
+
+          {multi ? (
+            <AutoLayout direction="vertical" width="fill-parent" spacing={8}>
+              <Label>{t.labelColumns}</Label>
+              {format.columns.map((c) => (
+                <AutoLayout key={c.id} direction="horizontal" width="fill-parent" spacing={10} verticalAlignItems="center">
+                  <AutoLayout width={14} height={14} cornerRadius={7} fill={c.hex} stroke="#C9C4B8" />
+                  <Input
+                    value={c.label}
+                    placeholder={t.columns[c.id]}
+                    onTextEditEnd={(e) => renameColumn(c.id, e.characters)}
+                    fontSize={14}
+                    fill={INK}
+                    width="fill-parent"
+                    inputFrameProps={{
+                      fill: '#FFFFFF',
+                      stroke: '#D8D4CA',
+                      cornerRadius: 8,
+                      padding: { vertical: 8, horizontal: 10 },
+                      hoverStyle: { stroke: INK },
+                    }}
+                  />
+                </AutoLayout>
+              ))}
+            </AutoLayout>
+          ) : null}
 
           <AutoLayout direction="vertical" width="fill-parent" spacing={8}>
             <Label>{multi ? t.labelTitle : t.labelQuestion(round)}</Label>
@@ -751,7 +946,24 @@ function HushJar() {
           <Text fontSize={20} fontWeight={700} fill={INK} width="fill-parent" horizontalAlignText="center">
             {title}
           </Text>
-          <SVG src={jarSvg(ideas, phase === 'revealed')} width={170} height={200} />
+          {phase === 'open' ? (
+            // El número de ideas sale del tarro como un bocadillo, arriba a la derecha.
+            <AutoLayout width="fill-parent" height={200}>
+              <SVG src={jarSvg(ideas, false)} width={170} height={200} positioning="absolute" x={111} y={0} />
+              {ideas > 0 ? (
+              <AutoLayout positioning="absolute" x={234} y={4} height={48}>
+                <AutoLayout padding={{ vertical: 7, horizontal: 12 }} cornerRadius={14} fill="#FFFFFF" stroke="#D8D4CA" strokeWidth={1.5}>
+                  <Text fontSize={15} fontWeight={700} fill={INK}>
+                    {t.ideas(ideas)}
+                  </Text>
+                </AutoLayout>
+                <SVG src={BUBBLE_TAIL} width={14} height={10} positioning="absolute" x={10} y={33} />
+              </AutoLayout>
+              ) : null}
+            </AutoLayout>
+          ) : (
+            <SVG src={jarSvg(ideas, phase === 'revealed')} width={170} height={200} />
+          )}
           {multi && !revealedCounts ? (
             <AutoLayout direction="horizontal" spacing={12} wrap horizontalAlignItems="center">
               {format.columns.map((c) => (
@@ -765,10 +977,21 @@ function HushJar() {
       {phase === 'open' ? (
         <AutoLayout direction="vertical" width="fill-parent" spacing={12} horizontalAlignItems="center">
           <AutoLayout direction="vertical" spacing={4} horizontalAlignItems="center" width="fill-parent">
-            <Text fontSize={16} fontWeight={600} fill={INK}>
-              {ideas === 0 ? t.noIdeasYet : writers > 0 ? `${t.ideas(ideas)} · ${t.people(writers)}` : t.ideas(ideas)}
-            </Text>
-            <Hint>{t.nobodyReads}</Hint>
+            {!present && writers > 0 ? (
+              <Text fontSize={13} fill={MUTED}>
+                {t.people(writers)}
+              </Text>
+            ) : null}
+            {present ? (
+              <AutoLayout direction="vertical" width="fill-parent" spacing={6} horizontalAlignItems="center" padding={{ vertical: 2 }}>
+                <AutoLayout width={200} height={6} cornerRadius={3} fill="#EEEAE0">
+                  {writers ? <AutoLayout width={Math.max(6, Math.round((200 * Math.min(writers, present)) / Math.max(present, writers)))} height={6} cornerRadius={3} fill={INK} /> : null}
+                </AutoLayout>
+                <Text fontSize={13} fill={MUTED}>
+                  {t.wroteOf(writers, Math.max(present, writers))}
+                </Text>
+              </AutoLayout>
+            ) : null}
           </AutoLayout>
           <Button label={t.write} onClick={writeIdea} />
           <Button label={t.open} tone="secondary" onClick={() => openJar(false)} />
@@ -815,10 +1038,60 @@ function HushJar() {
             ) : null}
             {ideas > 0 ? <Hint>{t.newIdeas(ideas)}</Hint> : null}
           </AutoLayout>
-          <AutoLayout direction="horizontal" width="fill-parent" spacing={8}>
-            <Button label={t.showIdeas} tone="secondary" onClick={showIdeas} />
-            <Button label={t.newRound} onClick={newRound} />
-          </AutoLayout>
+
+          {vote && vote.open ? (
+            <AutoLayout direction="vertical" width="fill-parent" spacing={10} horizontalAlignItems="center">
+              <Button label={t.vote(MAX_VOTES)} onClick={castVotes} />
+              <Text fontSize={13} fill={MUTED}>
+                {t.voters(votes.size)}
+              </Text>
+              <AutoLayout direction="horizontal" width="fill-parent" spacing={8}>
+                <Button label={t.showIdeas} tone="secondary" onClick={showIdeas} />
+                <Button label={t.closeVote} tone="secondary" onClick={closeVote} />
+              </AutoLayout>
+            </AutoLayout>
+          ) : (
+            <AutoLayout direction="vertical" width="fill-parent" spacing={10}>
+              {vote && vote.results ? (
+                <AutoLayout direction="vertical" width="fill-parent" spacing={6}>
+                  <Label>{t.topIdeas}</Label>
+                  {vote.results.length ? (
+                    vote.results.map((r) => (
+                      <AutoLayout
+                        key={r.id}
+                        direction="horizontal"
+                        width="fill-parent"
+                        spacing={10}
+                        padding={{ vertical: 8, horizontal: 10 }}
+                        cornerRadius={8}
+                        fill="#F4F2EC"
+                        hoverStyle={{ fill: '#EAE6DB' }}
+                        verticalAlignItems="center"
+                        onClick={() => showNote(r.id)}
+                      >
+                        <Text fontSize={13} fontWeight={700} fill={INK}>
+                          {t.votesCount(r.n)}
+                        </Text>
+                        <Text fontSize={13} fill={INK} width="fill-parent" truncate={2}>
+                          {r.t}
+                        </Text>
+                      </AutoLayout>
+                    ))
+                  ) : (
+                    <Text fontSize={13} fill={MUTED}>
+                      {t.noVotes}
+                    </Text>
+                  )}
+                </AutoLayout>
+              ) : (
+                <Button label={t.startVote} onClick={startVote} />
+              )}
+              <AutoLayout direction="horizontal" width="fill-parent" spacing={8}>
+                <Button label={t.showIdeas} tone="secondary" onClick={showIdeas} />
+                <Button label={t.newRound} tone={vote && vote.results ? 'primary' : 'secondary'} onClick={newRound} />
+              </AutoLayout>
+            </AutoLayout>
+          )}
         </AutoLayout>
       ) : null}
 

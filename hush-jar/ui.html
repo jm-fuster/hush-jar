@@ -47,12 +47,29 @@
   .mine li { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border: 1px solid var(--border); border-radius: 8px; }
   .mine li.editing { border-color: var(--text); }
   .mine .text { flex: 1; min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  [hidden] { display: none !important; }
+  .help { margin: -4px 0 10px; color: var(--muted); }
+  .notes { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; max-height: 340px; overflow: auto; }
+  .note { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; text-align: left; }
+  .note[aria-pressed="true"] { border-color: var(--text); font-weight: 600; }
+  .note .text { flex: 1; min-width: 0; }
+  .check { flex: none; width: 18px; height: 18px; border: 1.5px solid var(--border); border-radius: 50%; display: grid; place-items: center; font-size: 11px; }
+  .note[aria-pressed="true"] .check { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .foot { display: flex; justify-content: flex-end; margin-top: 12px; }
 </style>
 </head>
 <body>
   <p class="eyebrow" id="eyebrow"></p>
   <h1 id="question"></h1>
+  <section id="voteView" hidden>
+    <p class="help" id="voteHelp"></p>
+    <ul class="notes" id="notes"></ul>
+    <div class="row">
+      <span class="count" id="votesLeft"></span>
+      <button id="saveVotes" class="main"></button>
+    </div>
+  </section>
+  <section id="writeView">
   <div class="cols" id="cols" role="group"></div>
   <textarea id="idea" maxlength="280"></textarea>
   <div class="row">
@@ -62,6 +79,7 @@
       <button id="seal" class="main" disabled></button>
     </div>
   </div>
+  </section>
   <p id="status"></p>
   <section class="mine" id="mineBox" hidden>
     <p class="mine-title"><span id="mineTitle"></span> · <span id="mineCount">0</span></p>
@@ -241,9 +259,84 @@
     $('idea').focus();
   }
 
+  // ---------- votar ----------
+  let notes = [];
+  let max = 3;
+  let chosen = [];
+
+  function renderVotes() {
+    const list = $('notes');
+    list.innerHTML = '';
+    for (const n of notes) {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'note';
+      const on = chosen.includes(n.id);
+      b.setAttribute('aria-pressed', String(on));
+      b.disabled = busy || (!on && chosen.length >= max);
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = n.hex;
+      const text = document.createElement('span');
+      text.className = 'text';
+      text.textContent = n.t;
+      const check = document.createElement('span');
+      check.className = 'check';
+      check.textContent = on ? '✓' : '';
+      b.append(dot, text, check);
+      b.onclick = () => {
+        chosen = on ? chosen.filter((id) => id !== n.id) : chosen.concat(n.id);
+        setStatus('');
+        renderVotes();
+      };
+      li.appendChild(b);
+      list.appendChild(li);
+    }
+    $('votesLeft').textContent = tx('votesLeft', { n: max - chosen.length, max });
+    $('saveVotes').disabled = busy;
+    requestResize();
+  }
+
+  $('saveVotes').onclick = () => {
+    if (busy) return;
+    busy = true;
+    renderVotes();
+    send({ type: 'vote', ids: chosen });
+  };
+
   window.onmessage = (event) => {
     const m = event.data && event.data.pluginMessage;
     if (!m) return;
+    if (m.type === 'init' && m.mode === 'vote') {
+      T = m.text || T;
+      if (m.lang) document.documentElement.lang = m.lang;
+      applyTexts();
+      $('eyebrow').textContent = T.voteEyebrow;
+      $('voteHelp').textContent = T.voteHelp;
+      $('saveVotes').textContent = T.saveVotes;
+      $('question').textContent = m.question || '';
+      $('writeView').hidden = true;
+      $('voteView').hidden = false;
+      notes = m.notes || [];
+      max = m.max || 3;
+      chosen = m.chosen || [];
+      renderVotes();
+      document.body.classList.add('ready');
+      return;
+    }
+    if (m.type === 'voted') {
+      busy = false;
+      chosen = m.ids || chosen;
+      setStatus(T.votesSaved, 'ok');
+      renderVotes();
+    }
+    if (m.type === 'refused' && notes.length) {
+      busy = false;
+      setStatus(m.text, 'warn');
+      renderVotes();
+      return;
+    }
     if (m.type === 'init') {
       T = m.text || T;
       if (m.lang) document.documentElement.lang = m.lang;
